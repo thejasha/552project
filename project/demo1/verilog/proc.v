@@ -22,7 +22,8 @@ module proc (/*AUTOARG*/
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
-   
+   clkrst my_clkrst(.clk(clk), .rst(rst), .err(err)); 
+
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
    
 endmodule // proc
