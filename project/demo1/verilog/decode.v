@@ -27,6 +27,8 @@ module decode (instruction, read_data_1, read_data_2, write_data, i_1, i_2, word
 
    //WRITE REGISTER
       //mux for 10:8, 7:5, 4:2, and the number 7
+
+   
     
    assign write_reg = (RegDst == 2'b00) ? instruction[7:5] : (RegSrc == 2'b01) ? instruction[10:8] : (RegSrc == 2'b10) ? instruction[4:2] : (RegSrc == 2'b11) ? 3'b111 : 3'b0;
 
