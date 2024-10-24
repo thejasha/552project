@@ -5,7 +5,7 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
 `default_nettype none
-module execute (/* TODO: Add appropriate inputs/outputs for your execute stage here*/);
+module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl, BTR, clk, rst, ALU, BInput, branchtake);
 
    input wire [1:0]BSrc; //4 to 1 muxm controller
    input wire InvB; //invert b controll
@@ -18,14 +18,10 @@ module execute (/* TODO: Add appropriate inputs/outputs for your execute stage h
    //input wire [15:0] tenExtend; //the extend that comes from [10:0]
    
    input wire [15:0] shifted; //shifted 8 bits unsigned
-   input wire subtract; //subtract bit for cin
    input wire [1:0] BranchCtrl;
    input wire branch; //is a branch command
    input wire SLBI;
-   input wire carry;
-   input wire SLT;
-   input wire SEQ;
-   input wire SLE;
+   input wire [1:0] SetCtrl;
    input wire BTR; //bit reverse
    input wire         clk;
    input wire         rst;
@@ -34,14 +30,7 @@ module execute (/* TODO: Add appropriate inputs/outputs for your execute stage h
    //outputs
    output wire [15:0] ALU; //the alu output
    output wire [15:0] BInput; //the input for the b alu
-   output wire BrchCnd;
-   output wire GTZ;    // Greater than
-   output wire LTZ;    // Less than
-   output wire EQZ;    // Equal
-   output wire NEQZ;   // Not equal
-   output wire Zero;
-   output wire Overflow; //overflow or carry out
-   output wire branchfail;
+   output wire branchtake; //1 when we branching and conditions pass   
 
    // TODO: Your code here
    //mux for alu b input
@@ -81,22 +70,17 @@ module execute (/* TODO: Add appropriate inputs/outputs for your execute stage h
    // 110      OR        A OR B
    // 111      XOR       A XOR B
    reg aluout;
-   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(subtract), .Oper(ALUCtrl), .invA(invA), .invB(invB), .sign(~carry), .Out(aluout), .Zero(Zero), .Ofl(Overflow));
+   reg conditional; //greater 1 or less 0
+   reg CF; //1 when there was a carry in unsigned
+   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(subtract), .Oper(ALUCtrl), .invA(invA), .invB(invB), .sign(invA||invB), .Out(aluout), .signOut(conditional), .Zero(Zero), .Ofl(Overflow), .carryFlag(CF));
                
 
 
 
    //brchcnd
-   reg branchimm;
-   reg branchfail;
-   assign EQZ  = (ReadData1 == 0);                   // Equal
-   assign NEQZ = (ReadData1 != 0);                   // Not equal
-   assign GTZ  = ($signed(ReadData1) >= 0); // Greater than
-   assign LTZ  = ($signed(ReadData1) < 0); // Less than
-
-   assign BrchCnd = (branch && (BranchCtrl == 2'b00) && (EQZ == 1) || (BranchCtrl == 2'b01) && (NEQZ == 1) || (BranchCtrl == 2'b10) && (LTZ == 1) || (BranchCtrl == 2'b11) && (GTZ == 1));
-   assign branchimm = Brchcnd ? BInput : aluout;
-   assign branchfail = (branch && ~BrchCnd) ? 1'b1 : 1'b0;
+   reg Brchcnd;
+   assign BrchCnd = (BranchCtrl == 2'b00) && (Zero) || (BranchCtrl == 2'b01) && (~Zero) || (BranchCtrl == 2'b10) && (~conditional) || (BranchCtrl == 2'b11) && (conditional);
+   assign branchtake = (branch && BrchCnd) ? 1'b1 : 1'b0;
 
    //set logic
    reg Oper; //sco control
@@ -111,11 +95,16 @@ module execute (/* TODO: Add appropriate inputs/outputs for your execute stage h
    reg sleoper; //sle control
    reg sleout; //output through sle
 
+   assign carry = (SetCtrl == 2'b00);
+   assign SLT = (SetCtrl == 2'b01);
+   assign SEQ = (SetCtrl == 2'b10);
+   assign SLE = (SetCtrl == 2'b11);
 
-   assign Oper = {carry, Overflow};
+
+   assign Oper = {carry, CF};
    assign coout = (Oper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (Oper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
-                                   branchimm;               // Output aluout when Oper = 00 or 01
+                                   aluout;               // Output aluout when Oper = 00 or 01
 
    assign altb = (ReadData1 < BInput);
    assign sltoper = {SLT, altb}

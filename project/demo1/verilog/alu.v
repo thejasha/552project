@@ -9,7 +9,7 @@
     of the operation, as well as drive the output signals Zero and Overflow
     (OFL).
 */
-module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
+module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, signOut, Zero, Ofl, carryFlag);
 
     parameter OPERAND_WIDTH = 16;    
     parameter NUM_OPERATIONS = 3;
@@ -22,8 +22,11 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
     input                       invB; // Signal to invert B
     input                       sign; // Signal for signed operation
     output [OPERAND_WIDTH -1:0] Out ; // Result of computation
+    output wire signOut; //signal 1 if positive;
     output                      Ofl ; // Signal if overflow occured
     output                      Zero; // Signal if Out is 0
+    output wire carryFlag; //flag for carry
+
 
     /* YOUR CODE HERE */
 
@@ -62,9 +65,25 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
     assign addition_logic = (~Oper[1] & ~Oper[0]) ? addition : logic_gates_r;
     assign Out = Oper[2] ? addition_logic : barrel;
 
-    assign Zero = &(~Out);
+    //assign Zero = &(~Out);
 
     assign Ofl  = sign ? signed_over : carry;
+
+    //branch cnd
+    reg branchResult; //results from adding with 0
+    //assign EQZ  = (ReadData1 == 0);                   // Equal
+    //assign NEQZ = (ReadData1 != 0);                   // Not equal
+    //assign GTZ  = ($signed(ReadData1) >= 0); // Greater than
+    //assign LTZ  = ($signed(ReadData1) < 0); // Less than
+    cla_16b adding(.sum(branchResult), .c_out(), .a(InA), .b(16'b0000000000000000), .c_in(1'b0));
+    assign Zero = &(~branchResult);
+    assign signOut = ($signed(branchResult) >= 0);
+
+
+    cla_16b adding(.sum(), .c_out(carryFlag), .a(InA), .b(InB), .c_in());//set carry for SCO
+
+
+
 
 
     
