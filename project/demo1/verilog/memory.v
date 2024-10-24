@@ -28,7 +28,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
 
 
    //First mux
-   reg [15:0] MuxImmSrc; //mux controlled by IMMSRC
+   wire [15:0] MuxImmSrc; //mux controlled by IMMSRC
    assign MuxImmSrc = branch ? sevenext : SgnExt; //the mux for immscr
 
    //adder
@@ -36,7 +36,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
    fulladder16 fa(.A(pc2), .B(MuxImmSrc), .S(adderOut), .Cout());
 
    //branch mux
-   reg [15:0] MuxBranchSrc; //mux controlled by the branch/brchcnd
+   wire [15:0] MuxBranchSrc; //mux controlled by the branch/brchcnd
    assign MuxBranchSrc = (PC_or_add || branch) ? adderOut : pc2; // the  mux for branch
 
    //jump mux
