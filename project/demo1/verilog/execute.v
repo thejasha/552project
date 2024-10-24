@@ -80,7 +80,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    //brchcnd
    wire Brchcnd;
 
-   assign Brchcnd = (BranchCtrl == 2'b00) && (Zero) || (BranchCtrl == 2'b01) && (~Zero) || (BranchCtrl == 2'b10) && (~conditional) || (BranchCtrl == 2'b11) && (conditional);
+   assign Brchcnd = (BranchCtrl == 2'b00) & (Zero) | (BranchCtrl == 2'b01) & (~Zero) | (BranchCtrl == 2'b10) & (~conditional) | (BranchCtrl == 2'b11) & (conditional);
    assign branchtake = (branch && Brchcnd) ? 1'b1 : 1'b0;
 
    //set logic
