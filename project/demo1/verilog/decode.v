@@ -6,7 +6,7 @@
 */
 `default_nettype none
 module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, 
-         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command);
+         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command, SetCtrl);
 
 
    // TODO: Your code here
@@ -38,6 +38,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    output reg SLBI; //will decide if we are using the shift or command
    output reg branching; //will tell exe if we are going to be doing a branch command
    output reg [1:0] branch_command; //will specifiy the branch command
+   output reg [2:0] SetCtrl;
 
 
    wire [2:0] write_reg; //the selected write reg
@@ -69,6 +70,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          PC_or_add = 1'b0;
          RegSrc = 2'b00;
          BTR = 1'b0;
+         SetCtrl = 3'b000;
 
       case (instruction[15:13])
         
@@ -289,21 +291,24 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          /**/
 
          3'b111: begin //compare instructions
+            RegWrt = 1'b1; //write to register
+            RegSrc = 2'b10; //take the alu output for the writeback
+            RegDst = 2'b10; //write to 4:2
             case(instruction[12:11])
                default: begin //2'b00 SEQ  if (Rs == Rt) then Rd <- 1 else Rd <- 0
-
+                  SetCtrl = 3'b100;
                end 
 
                2'b01: begin  //SLT  if (Rs < Rt) then Rd <- 1 else Rd <- 0
-               
+                  SetCtrl = 3'b101;
                end 
 
                2'b11: begin //SLE  if (Rs <= Rt) then Rd <- 1 else Rd <- 0
-
+                  SetCtrl = 3'b110;
                end
 
                2'b10: begin //SCO  if (Rs + Rt) generates carry out then Rd <- 1 else Rd <- 08
-                     
+                  SetCtrl = 3'b111; 
                end 
             endcase
          end

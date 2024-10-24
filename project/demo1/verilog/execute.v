@@ -5,7 +5,7 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
 `default_nettype none
-module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl, BTR, clk, rst, ALU, BInput, branchtake);
+module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl, BTR, ALU, BInput, branchtake);
 
    input wire [1:0]BSrc; //4 to 1 muxm controller
    input wire InvB; //invert b controll
@@ -23,8 +23,6 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    input wire SLBI;
    input wire [1:0] SetCtrl;
    input wire BTR; //bit reverse
-   input wire         clk;
-   input wire         rst;
 
 
    //outputs
@@ -132,9 +130,6 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
                       readData1[8], readData1[9], readData1[10], readData1[11],
                       readData1[12], readData1[13], readData1[14], readData1[15] };
    assign ALU = BTR ? reverse : sleout;
-
-
-
 
 endmodule
 `default_nettype wire
