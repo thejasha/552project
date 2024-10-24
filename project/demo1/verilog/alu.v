@@ -70,17 +70,18 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, signOut, Zero, Ofl, carr
     assign Ofl  = sign ? signed_over : carry;
 
     //branch cnd
-    reg branchResult; //results from adding with 0
+    wire [15:0] branchResult; //results from adding with 0
     //assign EQZ  = (ReadData1 == 0);                   // Equal
     //assign NEQZ = (ReadData1 != 0);                   // Not equal
     //assign GTZ  = ($signed(ReadData1) >= 0); // Greater than
     //assign LTZ  = ($signed(ReadData1) < 0); // Less than
-    cla_16b adding(.sum(branchResult), .c_out(), .a(InA), .b(16'b0000000000000000), .c_in(1'b0));
+    //cant have multiple in this
+    cla_16b adding3(.sum(branchResult), .c_out(), .a(InA), .b(16'b0000000000000000), .c_in(1'b0));
     assign Zero = &(~branchResult);
     assign signOut = ($signed(branchResult) >= 0);
 
-
-    cla_16b adding(.sum(), .c_out(carryFlag), .a(InA), .b(InB), .c_in(1'b0));//set carry for SCO
+    //todo need to not do this
+    cla_16b adding2(.sum(), .c_out(carryFlag), .a(InA), .b(InB), .c_in(1'b0));//set carry for SCO
 
 
 

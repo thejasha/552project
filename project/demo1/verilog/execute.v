@@ -5,7 +5,7 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
 `default_nettype none
-module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl3, BTR, clk, rst, ALU, BInput, branchtake);
+module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl3, BTR, ALU, BInput, branchtake);
 
    input wire [1:0]BSrc; //4 to 1 muxm controller
    input wire InvB; //invert b controll
@@ -48,9 +48,9 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
 
 
    //slbi codes
-   reg possibleslbi;
-   reg shiftedA;
-   reg slbiOper;
+   wire [15:0] possibleslbi;
+   wire [15:0] shiftedA;
+   wire slbiOper;
    shifter #() shift (.In(ReadData1), .ShAmt(4'b1000), .Oper(2'b01), .Out(shiftedA));
 
    assign possibleslbi = (SLBI) ? shiftedA : ReadData1;
@@ -67,32 +67,40 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    // 101      AND       A AND B
    // 110      OR        A OR B
    // 111      XOR       A XOR B
-   reg aluout;
-   reg conditional; //greater 1 or less 0
-   reg CF; //1 when there was a carry in unsigned
-   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(subtract), .Oper(ALUCtrl), .invA(invA), .invB(invB), .sign(invA||invB), .Out(aluout), .signOut(conditional), .Zero(Zero), .Ofl(Overflow), .carryFlag(CF));
+   wire [15:0]aluout;
+   wire conditional; //greater 1 or less 0
+   wire CF; //1 when there was a carry in unsigned
+   wire Zero;
+   wire Overflow;
+   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(InvA||InvB), .Oper(ALUCtrl), .invA(InvA), .invB(InvB), .sign(InvA||InvB), .Out(aluout), .signOut(conditional), .Zero(Zero), .Ofl(Overflow), .carryFlag(CF));
                
 
 
 
    //brchcnd
-   reg Brchcnd;
-   assign BrchCnd = (BranchCtrl == 2'b00) && (Zero) || (BranchCtrl == 2'b01) && (~Zero) || (BranchCtrl == 2'b10) && (~conditional) || (BranchCtrl == 2'b11) && (conditional);
-   assign branchtake = (branch && BrchCnd) ? 1'b1 : 1'b0;
+   wire Brchcnd;
+
+   assign Brchcnd = (BranchCtrl == 2'b00) && (Zero) || (BranchCtrl == 2'b01) && (~Zero) || (BranchCtrl == 2'b10) && (~conditional) || (BranchCtrl == 2'b11) && (conditional);
+   assign branchtake = (branch && Brchcnd) ? 1'b1 : 1'b0;
 
    //set logic
-   reg Oper; //sco control
-   reg altb; //a<b for slt
-   reg coout; //output throughsco
-   reg sltoper; //slt control
-   reg ltout; //output through slt
-   reg seqoper; //seq control
-   reg aeqb; //a=b for SEQ
-   reg seqout; //output through seq
-   reg alteb; //a<=b
-   reg sleoper; //sle control
-   reg sleout; //output through sle
-   reg [1:0] SetCtrl;
+   wire Oper; //sco control
+   wire altb; //a<b for slt
+   wire [15:0] coout; //output throughsco
+   wire sltoper; //slt control
+   wire [15:0] ltout; //output through slt
+   wire seqoper; //seq control
+   wire aeqb; //a=b for SEQ
+   wire [15:0] seqout; //output through seq
+   wire alteb; //a<=b
+   wire sleoper; //sle control
+   wire [15:0] sleout; //output through sle
+   wire [1:0] SetCtrl;
+
+   wire carry;
+   wire SLT;
+   wire SEQ;
+   wire SLE;
 
    assign SetCtrl = SetCtrl3[2:1];
    assign carry = (SetCtrl == 2'b00);
@@ -105,7 +113,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    assign coout = (Oper == 2'b11) ? 16'b0000000000000001 : 16'b0000000000000000;     //1 when carry and carry flag,0ow
 
    assign altb = (ReadData1 < BInput);
-   assign sltoper = {SLT, altb}
+   assign sltoper = {SLT, altb};
    assign ltout = (sltoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sltoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
                                    coout;               // Output aluout when Oper = 00 or 01
@@ -118,21 +126,21 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
                                    ltout;               // Output aluout when Oper = 00 or 01
 
    assign alteb = (ReadData1 <= BInput);
-   assign sleoper = {SLE, alteb}
+   assign sleoper = {SLE, alteb};
    assign sleout = (sleoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sleoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
                                    seqout;               // Output aluout when Oper = 00 or 01
 
 
    //btr logic
-   reg ReverseOut;
-   reg reverse = { readData1[0], readData1[1], readData1[2], readData1[3],
-                      readData1[4], readData1[5], readData1[6], readData1[7],
-                      readData1[8], readData1[9], readData1[10], readData1[11],
-                      readData1[12], readData1[13], readData1[14], readData1[15] };
+   wire [15:0]ReverseOut;
+   wire [15:0] reverse = { ReadData1[0], ReadData1[1], ReadData1[2], ReadData1[3],
+                      ReadData1[4], ReadData1[5], ReadData1[6], ReadData1[7],
+                      ReadData1[8], ReadData1[9], ReadData1[10], ReadData1[11],
+                      ReadData1[12], ReadData1[13], ReadData1[14], ReadData1[15] };
    assign ReverseOut = BTR ? reverse : aluout;
 
-   assign ALU = SetCtrl3[0] ? seqout : ReverseOut;
+   assign ALU = SetCtrl3[0] ? sleout : ReverseOut;
 
 endmodule
 `default_nettype wire
