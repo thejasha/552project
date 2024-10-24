@@ -80,7 +80,7 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, signOut, Zero, Ofl, carr
     assign signOut = ($signed(branchResult) >= 0);
 
 
-    cla_16b adding(.sum(), .c_out(carryFlag), .a(InA), .b(InB), .c_in());//set carry for SCO
+    cla_16b adding(.sum(), .c_out(carryFlag), .a(InA), .b(InB), .c_in(1'b0));//set carry for SCO
 
 
 
