@@ -24,14 +24,16 @@ module shifter (In, ShAmt, Oper, Out);
     wire [OPERAND_WIDTH -1:0] shift_left_r;
     wire [OPERAND_WIDTH -1:0] rotate_left_r;
     wire [OPERAND_WIDTH -1:0] shift_right_l_r;
-    wire [OPERAND_WIDTH -1:0] shift_right_a_r;
+    //wire [OPERAND_WIDTH -1:0] shift_right_a_r; TM
+    wire [OPERAND_WIDTH -1:0] rotate_right_r;
 
    shift_left #() sleft(.In(In), .ShAmt(ShAmt), .result(shift_left_r));
    rotate_left #() rleft(.In(In), .ShAmt(ShAmt), .result(rotate_left_r));
    shift_right_logic #() srl(.In(In), .ShAmt(ShAmt), .result(shift_right_l_r));
-   shift_right_arthimetic #() sra(.In(In), .ShAmt(ShAmt), .result(shift_right_a_r));
+   //shift_right_arthimetic #() sra(.In(In), .ShAmt(ShAmt), .result(shift_right_a_r)); TM
+   rotate_right #() rright(.In(In), .ShAmt(ShAmt), .result(rotate_right_r));
 
-   assign Out = Oper[1] ? (Oper[0] ? shift_right_l_r : shift_right_a_r) : (Oper[0] ? shift_left_r : rotate_left_r);
+   assign Out = Oper[1] ? (Oper[0] ? shift_right_l_r : rotate_right_r) : (Oper[0] ? shift_left_r : rotate_left_r);
 
 
 endmodule
