@@ -6,15 +6,15 @@
                      processor.
 */
 `default_nettype none
-module memory (branch, alu, SgnExt, readData2, pc2, sevenext, ALUJmp, PC_or_add, MemWrt, clk, rst, newPC, MemRead);
+module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, clk, rst, newPC, MemRead, sevenext);
 
    input wire branch; //comesin anded with the conditions
-   input wire jmpdsp; //secondmux
+   input wire PC_or_add; //secondmux
    input wire [15:0] alu; //alu output
    input wire [15:0] SgnExt; //sign extended immdiate
    input wire [15:0] readData2; //reg read daata 2
    input wire [15:0] pc2; //pc + 2
-   input wire [15:0] sevenext; //from imm
+   input wire [15:0] sevenext; //value for JALR add
    input wire ALUJmp;
    input wire MemWrt;
    input wire         clk;

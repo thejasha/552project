@@ -5,9 +5,13 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 `default_nettype none
-module decode (instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write);
+module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, RegSrc);
+
 
    // TODO: Your code here
+   input wire clk, rst;
+   output wire err;
+
    input wire [15:0] instruction, data_write; //our 2 inputs, the instrcution and the data from the wb
    
    output wire [15:0] read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump; //will pu
@@ -15,18 +19,20 @@ module decode (instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_a
    //values that will be the zero and signed singals
    wire [15:0] signed_i_1, zero_i_1, signed_i_2, zero_i_2;
    
+   //internal
    reg OExt; //will determine to zero or sign extend
    reg RegWrt; //will enable register writing
    reg [1:0] RegDst; //will determine which write reg value to use in the mux
-   reg [2:0] ALUOpr; //will be used with [1:0] to creater Oper
-   reg [1:0] Bsrc; //will select which data to use for the slot b of the alu
-   reg InvB; //will determine if we are subtracting b
-   reg InvA; //will determine if we are subtracting a
-   reg ImmSrc; //add jump or alu output MIGHT NEED TO CHANGE i think this is from the branch control
-   reg MemWrt; //if we are writing to meme
-   reg ALUJMP; //TODO
-   reg PC_or_add; //TODO
-   reg [1:0] RegSrc; //choose the singal for the mux for the wb
+   //external
+   output reg [2:0] ALUOpr; //will be used with [1:0] to creater Oper
+   output reg [1:0] Bsrc; //will select which data to use for the slot b of the alu
+   output reg InvB; //will determine if we are subtracting b
+   output reg InvA; //will determine if we are subtracting a
+   output reg ImmSrc; //add jump or alu output MIGHT NEED TO CHANGE i think this is from the branch control
+   output reg MemWrt; //if we are writing to meme
+   output reg ALUJMP; //if we are jumping form the result of alu
+   output reg PC_or_add; //if we r taking the pc or the addition for pc and another number
+   output reg [1:0] RegSrc; //choose the singal for the mux for the wb
 
 
    wire [2:0] write_reg; //the selected write reg
@@ -44,8 +50,8 @@ module decode (instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_a
          OExt = 1'b0;
          RegWrt = 1'b0;
          RegDst = 2'b00;
-         ALUOpr = 1'b0;
          //external
+         ALUOpr = 3'b000;
          Bsrc = 2'b00;
          InvB = 1'b0;
          InvA = 1'b0;
@@ -367,7 +373,7 @@ module decode (instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_a
 
 /*This block is for the register*/
    //bit 10-8 will be send to read registers 1 (RS) //bits 7-5 will be sent to read register 2 (Rt) need to input clk rst and err
-   // regFile registerfile(.read1Data(read_data_1), .read2Data(read_data_2), .err(), .clk(), .rst(), .read1RegSel(instruction[10:8]), .read2RegSel(instruction[7:5]), .writeRegSel(write_reg), .writeData(data_write), .writeEn(RegWrt));
+   regFile registerfile(.read1Data(read_data_1), .read2Data(read_data_2), .err(err), .clk(clk), .rst(rst), .read1RegSel(instruction[10:8]), .read2RegSel(instruction[7:5]), .writeRegSel(write_reg), .writeData(data_write), .writeEn(RegWrt));
   
    //WRITE REGISTER
       //mux for 10:8, 7:5, 4:2, and the number 7 which is for doing pc to register 7
