@@ -40,7 +40,7 @@ module put_together_tb();
             .data_write(data_write), .ALUOpr(ALUOpr), .Bsrc(Bsrc), .InvB(InvB), .InvA(InvA), .ImmSrc(ImmSrc), .MemWrt(MemWrt), .ALUJMP(ALUJMP), .PC_or_add(PC_or_add), .RegSrc(RegSrc), .SLBI(SLBI), 
             .BTR(BTR), .branching(branching), .branch_command(branch_command), .SetCtrl(SetCtrl));
 
-    execute iDUU3(.BSrc(Bsrc), .InvB(InvB), .InvA(InvA), .ALUCtrl(ALUOpr), .ReadData1(read_data_1), .ReadData2(read_data_2), .fourExtend(i_2), .sevenExtend(i_1), .shifted(to_shift), .BranchCtrl(branching), .branch(branch_command), .SLBI(SLBI), .SetCtrl(SetCtrl), 
+    execute iDUU3(.BSrc(Bsrc), .InvB(InvB), .InvA(InvA), .ALUCtrl(ALUOpr), .ReadData1(read_data_1), .ReadData2(read_data_2), .fourExtend(i_2), .sevenExtend(i_1), .shifted(to_shift), .BranchCtrl(branching), .branch(branch_command), .SLBI(SLBI), .SetCtrl3(SetCtrl), 
     .BTR(BTR), .ALU(Alu_result), .BInput(Binput), .branchtake(branchtake));
 
     //branch need to fix, pc2 need to add
