@@ -5,7 +5,8 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 `default_nettype none
-module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, RegSrc, SLBI, BTR);
+module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, 
+         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command);
 
 
    // TODO: Your code here
@@ -35,6 +36,8 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    output reg PC_or_add; //if we r taking the pc or the addition for pc and another number
    output reg [1:0] RegSrc; //choose the singal for the mux for the wb
    output reg SLBI; //will decide if we are using the shift or command
+   output reg branching; //will tell exe if we are going to be doing a branch command
+   output reg [1:0] branch_command; //will specifiy the branch command
 
 
    wire [2:0] write_reg; //the selected write reg
@@ -53,6 +56,8 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          RegWrt = 1'b0;
          RegDst = 2'b00;
          //external
+         branching = 1'b0;
+         branch_command = 2'b00;
          SLBI = 1'b0;
          ALUOpr = 3'b000;
          Bsrc = 2'b00;
@@ -307,26 +312,26 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          /**/
          
          3'b011: begin
+            ALUOpr = 3'b100; //add all
+            branching = 1'b1;
+            branch_command = 2'b01;
             case(instruction[12:11]) //if any of the bracnhes are true then we do the same thing each time only thing alu operation
-               default: begin //will be 00 case if (Rs == 0) then PC <- PC + 2 + I(sign ext.)
-
+               default: begin //beqz will be 00 case if (Rs == 0) then PC <- PC + 2 + I(sign ext.)
+                  // branch_command = 2'b00; default
                end
 
-               2'b01: begin //if (Rs != 0) then PC <- PC + 2 + I(sign ext.)
-                  //load RS into the ALU
-
-                  //0ext = 0 sign extend 
-                  //alu jump = 0
-
-                  //PC_or_add = 1'b1; // want to take the addition and send it to pc, but if the flag returns false, it will add to 10:0, Will add an and gate later with IMMSRC. that way if IMMSRC is 0, set PC_or_add mux to 0 maybe
+               2'b01: begin //bnez if (Rs != 0) then PC <- PC + 2 + I(sign ext.)
+                 branch_command = 2'b01;
                end
 
-               2'b10: begin //if (Rs < 0) then PC <- PC + 2 + I(sign ext.)
-
+               2'b10: begin //bltz  if (Rs < 0) then PC <- PC + 2 + I(sign ext.)
+                  InvB = 1'b1;
+                  branch_command = 2'b10;
                end
 
-               2'b11: begin //if (Rs >= 0) then PC <- PC + 2 + I(sign ext.)
-
+               2'b11: begin //bgez  if (Rs >= 0) then PC <- PC + 2 + I(sign ext.)
+                  InvB = 1'b1;
+                  branch_command = 2'b11;
                end
             endcase
          end

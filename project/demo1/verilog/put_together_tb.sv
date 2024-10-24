@@ -7,8 +7,8 @@ module put_together_tb();
     
     //externeal control singals
     logic [2:0] ALUOpr;
-    logic InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, SLBI, BTR;
-    logic [1:0 ]RegSrc, Bsrc;
+    logic InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, SLBI, BTR, branching;
+    logic [1:0 ]RegSrc, Bsrc, branch_command;
 
             //alu from exe, pc input, input b from exe
     logic [15:0] input1, pcinput, input3;
@@ -29,7 +29,8 @@ module put_together_tb();
     fetch iDUU1(.PC_in(pcinput), .PC_next(pc_next_to_pc2), .instruction(temp), .clk(clk), .rst(rst));
 
     decode iDUU2 (.clk(clk), .rst(rst), .err(err), .instruction(instruction), .read_data_1(read_data_1), .read_data_2(read_data_2), .i_1(i_1), .i_2(i_2), .word_align_jump(word_align_jump),  .to_shift(to_shift), 
-            .data_write(data_write), .ALUOpr(ALUOpr), .Bsrc(Bsrc), .InvB(InvB), .InvA(InvA), .ImmSrc(ImmSrc), .MemWrt(MemWrt), .ALUJMP(ALUJMP), .PC_or_add(PC_or_add), .RegSrc(RegSrc), .SLBI(SLBI), .BTR(BTR));
+            .data_write(data_write), .ALUOpr(ALUOpr), .Bsrc(Bsrc), .InvB(InvB), .InvA(InvA), .ImmSrc(ImmSrc), .MemWrt(MemWrt), .ALUJMP(ALUJMP), .PC_or_add(PC_or_add), .RegSrc(RegSrc), .SLBI(SLBI), 
+            .BTR(BTR), .branching(branching), .branch_command(branch_command));
     // execute iDUU3
     //branch need to fix, pc2 need to add
     memory iDUU4(.branch(from_exe), .alu(input1), .SgnExt(word_align_jump), .readData2(read_data_2), .pc2(pc_next_to_pc2), .ALUJmp(ALUJMP), .PC_or_add(PC_or_add), .MemWrt(MemWrt), .clk(clk), .rst(rst), .newPC(pc_goes_back_fetch), .MemRead(memory_data), .sevenext(i_2));
