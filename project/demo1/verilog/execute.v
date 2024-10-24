@@ -16,6 +16,7 @@ module execute (/* TODO: Add appropriate inputs/outputs for your execute stage h
    input wire [15:0] fourExtend; //the extended that comes from [4:0]
    input wire [15:0] sevenExtend; //the extend that comes from [7:0]
    //input wire [15:0] tenExtend; //the extend that comes from [10:0]
+   
    input wire [15:0] shifted; //shifted 8 bits unsigned
    input wire subtract; //subtract bit for cin
    input wire [1:0] BranchCtrl;

@@ -70,6 +70,7 @@ module memory2c (data_out, data_in, addr, enable, wr, createdump, clk, rst);
          if (!loaded) begin
             $readmemh("loadfile_all.img", mem);
             loaded = 1;
+
          end
       end
       else begin

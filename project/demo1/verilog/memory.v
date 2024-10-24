@@ -6,7 +6,7 @@
                      processor.
 */
 `default_nettype none
-module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk, rst, newPC, MemRead);
+module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, jmpdsp, MemWrt, clk, rst, newPC, MemRead);
 
    input wire branch; //comesin anded with the conditions
    input wire jmpdsp; //secondmux
@@ -18,9 +18,10 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk,
    input wire MemWrt;
    input wire         clk;
    input wire         rst;
+   //input wire enable;
 
-   output [15:0] newPC; //output that goes back to pc
-   output [15:0] MemRead
+   output wire [15:0] newPC; //output that goes back to pc
+   output wire [15:0] MemRead;
    // TODO: Your code here
 
 
@@ -29,7 +30,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk,
    assign MuxImmSrc = branch ? alu : SgnExt; //the mux for immscr
 
    //adder
-   reg [15:0] adderOut; //output of the add
+   wire [15:0] adderOut; //output of the add
    fulladder16 fa(.A(pc2), .B(MuxImmSrc), .S(adderOut), .Cout());
 
    //branch mux
