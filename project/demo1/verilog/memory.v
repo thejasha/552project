@@ -6,7 +6,7 @@
                      processor.
 */
 `default_nettype none
-module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, clk, rst, newPC, MemRead, sevenext);
+module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, clk, rst, newPC, MemRead, sevenext, halt);
 
    input wire branch; //comesin anded with the conditions
    input wire PC_or_add; //secondmux
@@ -17,6 +17,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
    input wire [15:0] sevenext; //value for JALR add
    input wire ALUJmp;
    input wire MemWrt;
+   input wire halt;
    input wire         clk;
    input wire         rst;
    //input wire enable;
@@ -47,7 +48,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
    //memory part
 
    //call the mem block
-   memory2c instruction_mem(.data_out(MemRead), .data_in(readData2), .addr(alu), .enable(1'b1), .wr(MemWrt), .createdump(1'b0), .clk(clk), .rst(rst));
+   memory2c instruction_mem(.data_out(MemRead), .data_in(readData2), .addr(alu), .enable(1'b1), .wr(MemWrt), .createdump(halt), .clk(clk), .rst(rst));
 
    
 endmodule

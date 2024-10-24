@@ -6,7 +6,7 @@
 */
 `default_nettype none
 module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, 
-         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command, SetCtrl);
+         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command, SetCtrl, halt);
 
 
    // TODO: Your code here
@@ -25,6 +25,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    reg RegWrt; //will enable register writing
    reg [1:0] RegDst; //will determine which write reg value to use in the mux
    //external
+   output reg halt;
    output reg BTR;
    output reg [2:0] ALUOpr; //will be used with [1:0] to creater Oper
    output reg [1:0] Bsrc; //will select which data to use for the slot b of the alu
@@ -71,10 +72,12 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          RegSrc = 2'b00;
          BTR = 1'b0;
          SetCtrl = 3'b000;
+         halt = 1'b0;
 
       case (instruction[15:13])
         
-         default: begin //default will be 000
+         default: begin //default will be 000 halt
+            halt = 1'b1;
          
          end
 
