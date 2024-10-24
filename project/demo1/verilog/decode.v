@@ -5,7 +5,7 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 `default_nettype none
-module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, RegSrc);
+module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, ALUJMP, PC_or_add, RegSrc, SLBI, BTR);
 
 
    // TODO: Your code here
@@ -24,6 +24,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    reg RegWrt; //will enable register writing
    reg [1:0] RegDst; //will determine which write reg value to use in the mux
    //external
+   output reg BTR;
    output reg [2:0] ALUOpr; //will be used with [1:0] to creater Oper
    output reg [1:0] Bsrc; //will select which data to use for the slot b of the alu
    output reg InvB; //will determine if we are subtracting b
@@ -33,6 +34,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    output reg ALUJMP; //if we are jumping form the result of alu
    output reg PC_or_add; //if we r taking the pc or the addition for pc and another number
    output reg [1:0] RegSrc; //choose the singal for the mux for the wb
+   output reg SLBI; //will decide if we are using the shift or command
 
 
    wire [2:0] write_reg; //the selected write reg
@@ -51,6 +53,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          RegWrt = 1'b0;
          RegDst = 2'b00;
          //external
+         SLBI = 1'b0;
          ALUOpr = 3'b000;
          Bsrc = 2'b00;
          InvB = 1'b0;
@@ -60,6 +63,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          ALUJMP = 1'b0;
          PC_or_add = 1'b0;
          RegSrc = 2'b00;
+         BTR = 1'b0;
 
       case (instruction[15:13])
         
@@ -172,6 +176,8 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                2'b10: begin //SLBI //Rs <- (Rs << 8) | I(zero ext.) NOT DONE
                   //NEED TO WORK ON, SHIFT THEN OR IT TODO
                      //make ALU shift by 8, then OR
+                  SLBI = 1'b1; //make it do the shift
+                  ALUOpr = 3'b110; //make it or
 
                   RegDst = 2'b01; //pick RS for the write
                   OExt = 1'b1; //need to zero extend the I
@@ -198,6 +204,10 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
 
                2'b01: begin  // BTR  Rd[bit i] <- Rs[bit 15-i] for i=0..15
                   //TODO
+                  RegDst = 2'b10; // pick the write reg as 4:2
+                  RegWrt = 1'b1; //write to the register
+                  RegSrc = 2'b10; //take the alu result and send it to register
+                  BTR = 1'b1; //command that will tell the alu to inverse everything
                end 
 
                2'b11: begin //logic stuff
