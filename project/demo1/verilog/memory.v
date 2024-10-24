@@ -9,12 +9,12 @@
 module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk, rst, newPC, MemRead);
 
    input wire branch; //comesin anded with the conditions
+   input wire jmpdsp; //secondmux
    input wire [15:0] alu; //alu output
    input wire [15:0] SgnExt; //sign extended immdiate
    input wire [15:0] readData2; //reg read daata 2
    input wire [15:0] pc2; //pc + 2
    input wire ALUJmp;
-   input wire ImmSrc;
    input wire MemWrt;
    input wire         clk;
    input wire         rst;
@@ -26,7 +26,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk,
 
    //First mux
    reg [15:0] MuxImmSrc; //mux controlled by IMMSRC
-   assign MuxImmSrc = ImmSrc ? alu : SgnExt; //the mux for immscr
+   assign MuxImmSrc = branch ? alu : SgnExt; //the mux for immscr
 
    //adder
    reg [15:0] adderOut; //output of the add
@@ -34,7 +34,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, ImmSrc, MemWrt, clk,
 
    //branch mux
    reg [15:0] MuxBranchSrc; //mux controlled by the branch/brchcnd
-   assign MuxBranchSrc = branch ? adderOut : pc2; // the  mux for branch
+   assign MuxBranchSrc = (jmpdsp || branch) ? adderOut : pc2; // the  mux for branch
 
    //jump mux
    assign newPC = ALUJmp ? alu : MuxBranchSrc;
