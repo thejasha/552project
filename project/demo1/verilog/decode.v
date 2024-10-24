@@ -303,7 +303,6 @@ module decode (instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_a
                   //alu jump = 0
 
                   //PC_or_add = 1'b1; // want to take the addition and send it to pc, but if the flag returns false, it will add to 10:0, Will add an and gate later with IMMSRC. that way if IMMSRC is 0, set PC_or_add mux to 0 maybe
-
                end
 
                2'b10: begin //if (Rs < 0) then PC <- PC + 2 + I(sign ext.)
