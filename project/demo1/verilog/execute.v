@@ -5,7 +5,7 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
 `default_nettype none
-module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl, BTR, clk, rst, ALU, BInput, branchtake);
+module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sevenExtend, shifted, BranchCtrl, branch, SLBI, SetCtrl3, BTR, clk, rst, ALU, BInput, branchtake);
 
    input wire [1:0]BSrc; //4 to 1 muxm controller
    input wire InvB; //invert b controll
@@ -21,7 +21,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    input wire [1:0] BranchCtrl;
    input wire branch; //is a branch command
    input wire SLBI;
-   input wire [1:0] SetCtrl;
+   input wire [2:0] SetCtrl3;
    input wire BTR; //bit reverse
    input wire         clk;
    input wire         rst;
@@ -94,7 +94,9 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    reg alteb; //a<=b
    reg sleoper; //sle control
    reg sleout; //output through sle
+   reg [1:0] SetCtrl;
 
+   assign SetCtrl = SetCtrl3[2:1];
    assign carry = (SetCtrl == 2'b00);
    assign SLT = (SetCtrl == 2'b01);
    assign SEQ = (SetCtrl == 2'b10);
@@ -102,9 +104,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
 
 
    assign Oper = {carry, CF};
-   assign coout = (Oper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
-                (Oper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
-                                   aluout;               // Output aluout when Oper = 00 or 01
+   assign coout = (Oper == 2'b11) ? 16'b0000000000000001 : 16'b0000000000000000;     //1 when carry and carry flag,0ow
 
    assign altb = (ReadData1 < BInput);
    assign sltoper = {SLT, altb}
@@ -127,11 +127,14 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
 
 
    //btr logic
+   reg ReverseOut;
    reg reverse = { readData1[0], readData1[1], readData1[2], readData1[3],
                       readData1[4], readData1[5], readData1[6], readData1[7],
                       readData1[8], readData1[9], readData1[10], readData1[11],
                       readData1[12], readData1[13], readData1[14], readData1[15] };
-   assign ALU = BTR ? reverse : sleout;
+   assign ReverseOut = BTR ? reverse : aluout;
+
+   assign ALU = SetCtrl3[0] ? seqout : ReverseOut;
 
 
 
