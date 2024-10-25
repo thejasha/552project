@@ -188,7 +188,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                      //make ALU shift by 8, then OR
                   SLBI = 1'b1; //make it do the shift
                   ALUOpr = 3'b110; //make it or
-
+                  BSrc = 2'b10; //want to the bits 7:0
                   RegDst = 2'b01; //pick RS for the write
                   OExt = 1'b1; //need to zero extend the I
                   RegSrc = 2'b10; //pick the data from the alu to write back
@@ -205,9 +205,9 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
             case(instruction[12:11])
                default: begin // LBI //Rs <- I(sign ext.) done
                   RegWrt = 1'b1; //need to write to the register
-                  RegDst = 2'b01; //want to load into RS so REGDST needs to take 10:8 whiuch wil be select 1
+                  RegDst = 2'b10; //want to load into RS so REGDST needs to take 10:8 whiuch wil be select 1
                   
-                  Bsrc = 2'b01; //want to signed 7:0 to go to write back
+                  Bsrc = 2'b10; //want to signed 7:0 to go to write back
                   RegSrc = 2'b11;
 
                end 
