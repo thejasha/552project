@@ -76,7 +76,9 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, signOut, Zero, Ofl, carr
     //assign LTZ  = ($signed(ReadData1) < 0); // Less than
     //cant have multiple in this
     assign Zero = &(~InA);
-    assign signOut = ($signed(InA) >= 0);
+    wire less;
+    lessThan lt1(.InA(InA), .InB(16'b0000000000000000), .Out(less));
+    assign signOut = ~less;
 
     //todo need to not do this
     assign carryFlag = carry;
