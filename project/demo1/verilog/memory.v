@@ -37,7 +37,7 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
 
    //branch mux
    wire [15:0] MuxBranchSrc; //mux controlled by the branch/brchcnd
-   assign MuxBranchSrc = (PC_or_add || branch) ? adderOut : pc2; // the  mux for branch
+   assign MuxBranchSrc = (PC_or_add | branch) ? adderOut : pc2; // the  mux for branch
 
    //jump mux
    assign newPC = ALUJmp ? alu : MuxBranchSrc;

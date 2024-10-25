@@ -72,7 +72,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    wire CF; //1 when there was a carry in unsigned
    wire Zero;
    wire Overflow;
-   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(InvA||InvB), .Oper(ALUCtrl), .invA(InvA), .invB(InvB), .sign(InvA||InvB), .Out(aluout), .signOut(conditional), .Zero(Zero), .Ofl(Overflow), .carryFlag(CF));
+   alu alu1(.InA(possibleslbi), .InB(BInput), .Cin(InvA | InvB), .Oper(ALUCtrl), .invA(InvA), .invB(InvB), .sign(InvA | InvB), .Out(aluout), .signOut(conditional), .Zero(Zero), .Ofl(Overflow), .carryFlag(CF));
                
 
 
@@ -81,7 +81,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    wire Brchcnd;
 
    assign Brchcnd = (BranchCtrl == 2'b00) & (Zero) | (BranchCtrl == 2'b01) & (~Zero) | (BranchCtrl == 2'b10) & (~conditional) | (BranchCtrl == 2'b11) & (conditional);
-   assign branchtake = (branch && Brchcnd) ? 1'b1 : 1'b0;
+   assign branchtake = (branch & Brchcnd) ? 1'b1 : 1'b0;
 
    //set logic
    wire Oper; //sco control
