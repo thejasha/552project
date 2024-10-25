@@ -112,7 +112,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    assign Oper = {carry, CF};
    assign coout = (Oper == 2'b11) ? 16'b0000000000000001 : 16'b0000000000000000;     //1 when carry and carry flag,0ow
 
-   assign altb = (ReadData1[15] == 1 & BInput[15] == 0) | (ReadData1 < BInput);
+   lessThan lt1(.InA(ReadData1), .InB(BInput), .Out(altb));
    assign sltoper = {SLT, altb};
    assign ltout = (sltoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sltoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
@@ -125,7 +125,9 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
                 (seqoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
                                    ltout;               // Output aluout when Oper = 00 or 01
 
-   assign alteb = (ReadData1[15] == 1 & BInput[15] == 0) |(ReadData1 <= BInput);
+   wire greater;
+   greaterThan lte1(.InA(ReadData1), .InB(BInput), .Out(greater));
+   assign alteb = ~greater;
    assign sleoper = {SLE, alteb};
    assign sleout = (sleoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sleoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
