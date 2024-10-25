@@ -137,7 +137,9 @@ module proc_hier_bench();
    assign WriteData = DUT.p0.iDUU2.registerfile.writeData;
    // Data being written to the register. (16 bits)
    
-   assign MemRead =  DUT.p0.iDUU4.MemWrt;
+   wire [1:0]regsrc_data_read = DUT.p0.iDUU5.RegSrc;
+   assign MemRead = (regsrc_data_read == 2'b01);
+  // assign MemRead =  DUT.p0.iDUU4.MemWrt;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
    assign MemWrite = (DUT.p0.iDUU4.MemWrt);
@@ -146,7 +148,7 @@ module proc_hier_bench();
    assign MemAddress = DUT.p0.iDUU4.alu;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
-   assign MemData = DUT.p0.iDUU4.MemWrt;
+   assign MemData = DUT.p0.iDUU4.readData2;
    // Data to be written to memory for memory writes (16 bits)
    
    assign Halt = DUT.p0.iDUU4.halt;

@@ -77,16 +77,14 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
       case (instruction[15:13])
         
          default: begin //default will be 000 halt
-            case(instruction[12:11])
-               2'b00: begin 
-                  halt = 1'b1;
-               end
-            default:begin //nop 
-            end
-            endcase
-            
-           
-         
+        	case(instruction[12:11])
+			2'b00: begin
+				halt = 1'b1;
+			end	
+			default: begin
+				//nop
+			end
+		endcase         
          end
 
          /**/
@@ -178,7 +176,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                   ALUOpr = 3'b100; //ADD is 100;
                end
 
-               2'b01: begin //STU  Mem[Rs + I(sign ext.)] <- RdRs <- Rs + I(sign ext.)
+               2'b11: begin //STU  Mem[Rs + I(sign ext.)] <- RdRs <- Rs + I(sign ext.)
                   //OExt = 0 sign extend
                   MemWrt = 1'b1; //want to write the data in [7:5], in this case Rd is techincally Rt
                   Bsrc = 2'b01; //take the sign extended immediate
@@ -196,7 +194,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                      //make ALU shift by 8, then OR
                   SLBI = 1'b1; //make it do the shift
                   ALUOpr = 3'b110; //make it or
-                  Bsrc = 2'b10; //want to the bits 7:0
+		Bsrc= 2'b10;
                   RegDst = 2'b01; //pick RS for the write
                   OExt = 1'b1; //need to zero extend the I
                   RegSrc = 2'b10; //pick the data from the alu to write back
@@ -213,7 +211,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
             case(instruction[12:11])
                default: begin // LBI //Rs <- I(sign ext.) done
                   RegWrt = 1'b1; //need to write to the register
-                  RegDst = 2'b10; //want to load into RS so REGDST needs to take 10:8 whiuch wil be select 1
+                  RegDst = 2'b01; //want to load into RS so REGDST needs to take 10:8 whiuch wil be select 1
                   
                   Bsrc = 2'b10; //want to signed 7:0 to go to write back
                   RegSrc = 2'b11;
@@ -314,11 +312,11 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                   SetCtrl = 3'b101;
                end 
 
-               2'b11: begin //SLE  if (Rs <= Rt) then Rd <- 1 else Rd <- 0
+               2'b10: begin //SLE  if (Rs <= Rt) then Rd <- 1 else Rd <- 0
                   SetCtrl = 3'b110;
                end
 
-               2'b10: begin //SCO  if (Rs + Rt) generates carry out then Rd <- 1 else Rd <- 08
+               2'b11: begin //SCO  if (Rs + Rt) generates carry out then Rd <- 1 else Rd <- 08
                   SetCtrl = 3'b111; 
                end 
             endcase
@@ -330,7 +328,6 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
          3'b011: begin
             ALUOpr = 3'b100; //add all
             branching = 1'b1;
-            branch_command = 2'b01;
             case(instruction[12:11]) //if any of the bracnhes are true then we do the same thing each time only thing alu operation
                default: begin //beqz will be 00 case if (Rs == 0) then PC <- PC + 2 + I(sign ext.)
                   // branch_command = 2'b00; default
