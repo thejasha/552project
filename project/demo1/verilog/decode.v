@@ -77,7 +77,15 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
       case (instruction[15:13])
         
          default: begin //default will be 000 halt
-            halt = 1'b1;
+            case(instruction[12:11])
+               2'b00: begin 
+                  halt = 1'b1;
+               end
+            default:begin //nop 
+            end
+            endcase
+            
+           
          
          end
 
@@ -188,7 +196,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
                      //make ALU shift by 8, then OR
                   SLBI = 1'b1; //make it do the shift
                   ALUOpr = 3'b110; //make it or
-                  BSrc = 2'b10; //want to the bits 7:0
+                  Bsrc = 2'b10; //want to the bits 7:0
                   RegDst = 2'b01; //pick RS for the write
                   OExt = 1'b1; //need to zero extend the I
                   RegSrc = 2'b10; //pick the data from the alu to write back

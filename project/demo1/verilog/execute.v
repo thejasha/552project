@@ -84,16 +84,16 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    assign branchtake = (branch & Brchcnd) ? 1'b1 : 1'b0;
 
    //set logic
-   wire Oper; //sco control
+   wire [1:0]Oper; //sco control
    wire altb; //a<b for slt
    wire [15:0] coout; //output throughsco
-   wire sltoper; //slt control
+   wire [1:0]sltoper; //slt control
    wire [15:0] ltout; //output through slt
-   wire seqoper; //seq control
+   wire [1:0]seqoper; //seq control
    wire aeqb; //a=b for SEQ
    wire [15:0] seqout; //output through seq
    wire alteb; //a<=b
-   wire sleoper; //sle control
+   wire [1:0]sleoper; //sle control
    wire [15:0] sleout; //output through sle
    wire [1:0] SetCtrl;
 
@@ -102,17 +102,17 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    wire SEQ;
    wire SLE;
 
-   assign SetCtrl = SetCtrl3[2:1];
-   assign carry = (SetCtrl == 2'b00);
+   assign SetCtrl = SetCtrl3[1:0];
+   assign carry = (SetCtrl == 2'b11);
    assign SLT = (SetCtrl == 2'b01);
-   assign SEQ = (SetCtrl == 2'b10);
-   assign SLE = (SetCtrl == 2'b11);
+   assign SEQ = (SetCtrl == 2'b00);
+   assign SLE = (SetCtrl == 2'b10);
 
 
    assign Oper = {carry, CF};
    assign coout = (Oper == 2'b11) ? 16'b0000000000000001 : 16'b0000000000000000;     //1 when carry and carry flag,0ow
 
-   assign altb = (ReadData1 < BInput);
+   assign altb = (ReadData1[15] == 1 & BInput[15] == 0) | (ReadData1 < BInput);
    assign sltoper = {SLT, altb};
    assign ltout = (sltoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sltoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
@@ -125,7 +125,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
                 (seqoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
                                    ltout;               // Output aluout when Oper = 00 or 01
 
-   assign alteb = (ReadData1 <= BInput);
+   assign alteb = (ReadData1[15] == 1 & BInput[15] == 0) |(ReadData1 <= BInput);
    assign sleoper = {SLE, alteb};
    assign sleout = (sleoper == 2'b11) ? 16'b0000000000000001 :  // Output 1 when Oper = 11
                 (sleoper == 2'b10) ? 16'b0000000000000000 :  // Output 0 when Oper = 10
@@ -140,7 +140,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
                       ReadData1[12], ReadData1[13], ReadData1[14], ReadData1[15] };
    assign ReverseOut = BTR ? reverse : aluout;
 
-   assign ALU = SetCtrl3[0] ? sleout : ReverseOut;
+   assign ALU = SetCtrl3[2] ? sleout : ReverseOut;
 
 endmodule
 `default_nettype wire
