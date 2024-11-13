@@ -53,5 +53,3 @@ module memory (branch, alu, SgnExt, readData2, pc2, ALUJmp, PC_or_add, MemWrt, c
    
 endmodule
 `default_nettype wire
-
-

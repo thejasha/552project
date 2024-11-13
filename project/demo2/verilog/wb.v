@@ -8,7 +8,7 @@
 module wb (RegSrc, mem_data, alu_data, Binput, pc_data, data_to_write);
 
    input wire [1:0] RegSrc;
-   input wire [15:0] mem_data, alu_data, pc_data, Binput; //TO-DO CHANGE OTHER_DATA
+   input wire [15:0] mem_data, alu_data, pc_data, Binput;
    output wire [15:0] data_to_write;
    // TODO: Your code here
 

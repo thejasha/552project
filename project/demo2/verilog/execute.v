@@ -15,7 +15,7 @@ module execute (BSrc, InvB, InvA, ALUCtrl, ReadData1, ReadData2, fourExtend, sev
    input wire [15:0] ReadData2; // reg output 2
    input wire [15:0] fourExtend; //the extended that comes from [4:0]
    input wire [15:0] sevenExtend; //the extend that comes from [7:0]
-   //input wire [15:0] tenExtend; //the extend that comes from [10:0]
+
    
    input wire [15:0] shifted; //shifted 8 bits unsigned
    input wire [1:0] BranchCtrl;
