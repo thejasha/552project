@@ -1,15 +1,17 @@
 module EX_MEM(
-ALU_in, ALU_out, BInput_in, BInput_out, branchtake_in, branchtake_out, alu_in, alu_out,
+ALU_in, ALU_out, BInput_in, BInput_out, branchtake_in, branchtake_out,
 branch_out, branch_in, PC_or_add_in, PC_or_add_out, ALUJmp_in, ALUJmp_out, MemWrt_in, 
-MemWrt_out, halt_in, halt_out, SgnExt_in, SgnExt_out;, readData2_in, readData2_out, 
+MemWrt_out, halt_in, halt_out, SgnExt_in, SgnExt_out, readData2_in, readData2_out, 
 pc2_in, pc2_out, sevenext_in, sevenext_out, RegWrt_in, RegWrt_out, RegSrc_in, 
-RegSrc_out, Binput_in, Binput_out);
+RegSrc_out, clk, rst);
 
 /*
 model
 memory iDUU4(.branch(branchtake), .alu(Alu_result), .SgnExt(word_align_jump), .readData2(read_data_2), .pc2(pc_next_to_pc2), .ALUJmp(ALUJMP), .PC_or_add(PC_or_add), .MemWrt(MemWrt), .clk(clk), 
     .rst(rst), .newPC(pc_goes_back_fetch), .MemRead(memory_data), .sevenext(i_2), .halt(halt));
 */
+
+input wire clk, rst;
 
 
 /*FROM EX TO MEM*/
@@ -18,17 +20,11 @@ memory iDUU4(.branch(branchtake), .alu(Alu_result), .SgnExt(word_align_jump), .r
     input wire [15:0] ALU_in; //the alu output
     output wire [15:0] ALU_out;
 
-    input wire [15:0] BInput_in; //the input for the b alu
+    input wire [15:0] BInput_in; //the input for the b alu also goes to WB
     output wire [15:0] BInput_out;
 
     input wire branchtake_in; //1 when we branching and conditions pass 
     output wire branchtake_out;
-
-    
-    //data need into MEM
-    input wire [15:0] alu_in; //alu output
-    output wire [15:0] alu_out; 
-
 
 /*FROM ID_EX flop TO MEM*/
 
@@ -73,10 +69,23 @@ memory iDUU4(.branch(branchtake), .alu(Alu_result), .SgnExt(word_align_jump), .r
     input wire [1:0] RegSrc_in;
     output wire [1:0] RegSrc_out;
 
-    //To WB
-    input wire [15:0] Binput_in;
-    output wire [15:0] Binput_out;
 
-dff [15:0] ();
+/*Flops*/
+
+dff ALU [15:0] (.q(ALU_out), .d(ALU_in), .clk(clk), .rst(rst));
+dff BInput [15:0] (.q(BInput_out), .d(BInput_in), .clk(clk), .rst(rst));
+dff branchtake(.q(branchtake_out), .d(branchtake_in), .clk(clk), .rst(rst));
+dff branch(.q(branch_out), .d(branch_in), .clk(clk), .rst(rst));
+dff PC_or_add(.q(PC_or_add_out), .d(PC_or_add_in), .clk(clk), .rst(rst));
+dff ALUJmp(.q(ALUJmp_out), .d(ALUJmp_in), .clk(clk), .rst(rst));
+dff MemWrt(.q(MemWrt_out), .d(MemWrt_in), .clk(clk), .rst(rst));
+dff halt(.q(halt_out), .d(halt_in), .clk(clk), .rst(rst));
+dff SgnExt [15:0] (.q(SgnExt_out), .d(SgnExt_in), .clk(clk), .rst(rst));
+dff readData2 [15:0] (.q(readData2_out), .d(readData2_in), .clk(clk), .rst(rst));
+dff pc2 [15:0] (.q(pc2_out), .d(pc2_in), .clk(clk), .rst(rst));
+dff sevenext [15:0] (.q(sevenext_out), .d(sevenext_in), .clk(clk), .rst(rst));
+dff RegWrt(.q(RegWrt_out), .d(RegWrt_in), .clk(clk), .rst(rst));
+dff RegSrc [1:0] (.q(RegSrc_out), .d(RegSrc_in), .clk(clk), .rst(rst));
+
 
 endmodule

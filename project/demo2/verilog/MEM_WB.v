@@ -1,11 +1,13 @@
 module MEM_WB(RegSrc_in, RegSrc_out, MemRead_in, mem_data_out, alu_data_in, 
-    pc_data_in, Binput_in, alu_data_out, pc_data_out, Binput_out, RegWrt_in, RegWrt_out);
+    pc_data_in, Binput_in, alu_data_out, pc_data_out, Binput_out, RegWrt_in, RegWrt_out, clk, rst);
 
 /*
 needed for wb
 wb iDUU5(.RegSrc(RegSrc), .mem_data(memory_data), .alu_data(Alu_result), .Binput(Binput), 
 .pc_data(pc_next_to_pc2), .data_to_write(data_write));
 */
+
+input wire clk, rst;
 
 /*FROM MEM TO WB*/
 
@@ -36,7 +38,14 @@ wb iDUU5(.RegSrc(RegSrc), .mem_data(memory_data), .alu_data(Alu_result), .Binput
 
 //WILL Likely need to flop the write register all the way through
 
-dff [15:0] ();
+/*Flops*/
+
+dff RegSrc [1:0] (.q(RegSrc_out), .d(RegSrc_in), .clk(clk), .rst(rst));
+dff MemRead [15:0] (.q(mem_data_out), .d(MemRead_in), .clk(clk), .rst(rst));
+dff alu_data [15:0] (.q(alu_data_out), .d(alu_data_in), .clk(clk), .rst(rst));
+dff pc_data [15:0] (.q(pc_data_out), .d(pc_data_in), .clk(clk), .rst(rst));
+dff Binput [15:0] (.q(Binput_out), .d(Binput_in), .clk(clk), .rst(rst));
+dff RegWrt(.q(RegWrt_out), .d(RegWrt_in), .clk(clk), .rst(rst));
 
 
 endmodule

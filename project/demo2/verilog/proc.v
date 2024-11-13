@@ -56,18 +56,28 @@ module proc (/*AUTOARG*/
     //might have to code something for pc
     fetch iDUU1(.PC_in(pc_goes_back_fetch), .PC_next(pc_next_to_pc2), .instruction(instruction), .clk(clk), .rst(rst));
 
+    // IF_ID latch1();
+
+
+
     decode iDUU2 (.clk(clk), .rst(rst), .err(err1), .instruction(instruction), .read_data_1(read_data_1), .read_data_2(read_data_2), .i_1(i_1), .i_2(i_2), .word_align_jump(word_align_jump),  .to_shift(to_shift), 
             .data_write(data_write), .ALUOpr(ALUOpr), .Bsrc(Bsrc), .InvB(InvB), .InvA(InvA), .ImmSrc(ImmSrc), .MemWrt(MemWrt), .ALUJMP(ALUJMP), .PC_or_add(PC_or_add), .RegSrc(RegSrc), .SLBI(SLBI), 
             .BTR(BTR), .branching(branching), .branch_command(branch_command), .SetCtrl(SetCtrl), .halt(halt));
+
+    // ID_EX latch2();
 
     execute iDUU3(.BSrc(Bsrc), .InvB(InvB), .InvA(InvA), .ALUCtrl(ALUOpr), .ReadData1(read_data_1), .ReadData2(read_data_2), 
         .fourExtend(i_1), .sevenExtend(i_2), .shifted(to_shift), .BranchCtrl(branch_command), 
         .branch(branching), .SLBI(SLBI), .SetCtrl3(SetCtrl), 
         .BTR(BTR), .ALU(Alu_result), .BInput(Binput), .branchtake(branchtake));
 
+    // EX_MEM latch3();
+    
     memory iDUU4(.branch(branchtake), .alu(Alu_result), .SgnExt(word_align_jump), .readData2(read_data_2), .pc2(pc_next_to_pc2), .ALUJmp(ALUJMP), .PC_or_add(PC_or_add), .MemWrt(MemWrt), .clk(clk), 
     .rst(rst), .newPC(pc_goes_back_fetch), .MemRead(memory_data), .sevenext(i_2), .halt(halt));
     
+    // MEM_WB latch4();
+
     wb iDUU5(.RegSrc(RegSrc), .mem_data(memory_data), .alu_data(Alu_result), .Binput(Binput), .pc_data(pc_next_to_pc2), .data_to_write(data_write));
    
 endmodule // proc
