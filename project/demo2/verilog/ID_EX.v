@@ -2,7 +2,7 @@ module ID_EX(
 BSrc_in, BSrc_out, InvB_in, InvB_out, InvA_in, InvA_out, ALUCtrl_in, ALUCtrl_out, BranchCtrl_in, BranchCtrl_out, branch_in, branch_out, SLBI_in, 
 SLBI_out, SetCtrl3_in, SetCtrl3_out, BTR_in, BTR_out, ReadData1_in, ReadData1_out, ReadData2_in, ReadData2_out, fourExtend_in, fourExtend_out,
 sevenExtend_in, sevenExtend_out, shifted_in, shifted_out, MemWrt_in, MemWrt_out, ALUJMP_in, ALUJMP_out, PC_or_add_in, PC_or_add_out, halt_in, 
-halt_out, word_align_jump_in, word_align_jump_out, RegWrt_in, RegWrt_out, RegSrc_in, RegSrc_out, pc2_in, pc2_out, write_reg_in, write_reg_out, clk, rst
+halt_out, word_align_jump_in, word_align_jump_out, RegWrt_in, RegWrt_out, RegSrc_in, RegSrc_out, pc2_in, pc2_out, write_reg_in, write_reg_out, SendNOP_In, SendNOP_Out, clk, rst
 );
 
 /*
@@ -82,6 +82,8 @@ input wire clk, rst;
     //To MEM_WB
     input wire RegWrt_in;
     output wire RegWrt_out;
+    input wire SendNOP_In;
+    output wire SendNOP_Out;
 
     //To WB
     input wire [1:0] RegSrc_in;
@@ -117,6 +119,7 @@ dff PC_or_add(.q(PC_or_add_out), .d(PC_or_add_in), .clk(clk), .rst(rst));
 dff halt(.q(halt_out), .d(halt_in), .clk(clk), .rst(rst));
 dff word_align_jump [15:0] (.q(word_align_jump_out), .d(word_align_jump_in), .clk(clk), .rst(rst));
 dff RegWrt(.q(RegWrt_out), .d(RegWrt_in), .clk(clk), .rst(rst));
+dff SendNOP(.q(SendNOP_Out), .d(SendNOP_In), .clk(clk), .rst(rst));
 dff RegSrc [1:0](.q(RegSrc_out), .d(RegSrc_in), .clk(clk), .rst(rst));
 dff pc2 [15:0] (.q(pc2_out), .d(pc2_in), .clk(clk), .rst(rst));
 dff write_reg [2:0](.q(write_reg_out), .d(write_reg_in), .clk(clk), .rst(rst));

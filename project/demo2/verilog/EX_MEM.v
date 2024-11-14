@@ -3,7 +3,7 @@ ALU_in, ALU_out, BInput_in, BInput_out, branchtake_in, branchtake_out,
 branch_out, branch_in, PC_or_add_in, PC_or_add_out, ALUJmp_in, ALUJmp_out, MemWrt_in, 
 MemWrt_out, halt_in, halt_out, SgnExt_in, SgnExt_out, readData2_in, readData2_out, 
 pc2_in, pc2_out, sevenext_in, sevenext_out, RegWrt_in, RegWrt_out, RegSrc_in, 
-RegSrc_out, write_reg_in, write_reg_out, clk, rst);
+RegSrc_out, write_reg_in, write_reg_out, SendNOP_In, SendNOP_Out, clk, rst);
 
 /*
 model
@@ -64,6 +64,8 @@ input wire clk, rst;
     //To MEM_WB
     input wire RegWrt_in;
     output wire RegWrt_out;
+    input wire SendNOP_In;
+    output wire SendNOP_Out;
 
     //To WB
     input wire [1:0] RegSrc_in;
@@ -90,6 +92,7 @@ dff readData2 [15:0] (.q(readData2_out), .d(readData2_in), .clk(clk), .rst(rst))
 dff pc2 [15:0] (.q(pc2_out), .d(pc2_in), .clk(clk), .rst(rst));
 dff sevenext [15:0] (.q(sevenext_out), .d(sevenext_in), .clk(clk), .rst(rst));
 dff RegWrt(.q(RegWrt_out), .d(RegWrt_in), .clk(clk), .rst(rst));
+dff SendNOP(.q(SendNOP_Out), .d(SendNOP_In), .clk(clk), .rst(rst));
 dff RegSrc [1:0] (.q(RegSrc_out), .d(RegSrc_in), .clk(clk), .rst(rst));
 dff write_reg [2:0](.q(write_reg_out), .d(write_reg_in), .clk(clk), .rst(rst));
 
