@@ -6,7 +6,7 @@
 */
 `default_nettype none
 module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i_1, i_2, word_align_jump, data_write, ALUOpr, Bsrc, InvB, InvA, ImmSrc, MemWrt, 
-         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command, SetCtrl, halt);
+         ALUJMP, PC_or_add, RegSrc, SLBI, BTR, branching, branch_command, SetCtrl, halt, RegWrt, write_reg_from_wb, write_reg_out, RegWrt_from_wb);
 
 
    // TODO: Your code here
@@ -22,7 +22,7 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    
    //internal
    reg OExt; //will determine to zero or sign extend
-   reg RegWrt; //will enable register writing
+   output reg RegWrt; //will enable register writing
    reg [1:0] RegDst; //will determine which write reg value to use in the mux
    //external
    output reg halt;
@@ -42,7 +42,10 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
    output reg [2:0] SetCtrl;
 
 
-   wire [2:0] write_reg; //the selected write reg
+   output wire [2:0] write_reg_out; //the selected write reg
+   input wire [2:0] write_reg_from_wb;
+
+   input wire RegWrt_from_wb;
 
    // wire [2:0] Oper; //this is for the output of ALU operation
 
@@ -401,12 +404,11 @@ module decode (clk, rst, err, instruction, read_data_1, read_data_2, to_shift, i
 
 /*This block is for the register*/
    //bit 10-8 will be send to read registers 1 (RS) //bits 7-5 will be sent to read register 2 (Rt) need to input clk rst and err
-   regFile registerfile(.read1Data(read_data_1), .read2Data(read_data_2), .err(err), .clk(clk), .rst(rst), .read1RegSel(instruction[10:8]), .read2RegSel(instruction[7:5]), .writeRegSel(write_reg), .writeData(data_write), .writeEn(RegWrt));
+   regFile registerfile(.read1Data(read_data_1), .read2Data(read_data_2), .err(err), .clk(clk), .rst(rst), .read1RegSel(instruction[10:8]), .read2RegSel(instruction[7:5]), .writeRegSel(write_reg_from_wb), .writeData(data_write), .writeEn(RegWrt_from_wb));
   
    //WRITE REGISTER
       //mux for 10:8, 7:5, 4:2, and the number 7 which is for doing pc to register 7
-   assign write_reg = (RegDst == 2'b00) ? instruction[7:5] : (RegDst == 2'b01) ? instruction[10:8] : (RegDst == 2'b10) ? instruction[4:2] : (RegDst == 2'b11) ? 3'b111 : 3'b0;
-
+   assign write_reg_out = (RegDst == 2'b00) ? instruction[7:5] : (RegDst == 2'b01) ? instruction[10:8] : (RegDst == 2'b10) ? instruction[4:2] : (RegDst == 2'b11) ? 3'b111 : 3'b0;
 
 /*This block is for sign/zero extending*/
 
