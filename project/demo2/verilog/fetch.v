@@ -5,7 +5,7 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 `default_nettype none
-module fetch (PC_in, PC_next, instruction, clk, rst);
+module fetch (PC_in, PC_next, instruction, pc_temp, clk, rst);
 
    // TODO: Your code here
 
@@ -14,9 +14,10 @@ module fetch (PC_in, PC_next, instruction, clk, rst);
 
    output wire [15:0] PC_next; //word algined PC counter
    output wire [15:0] instruction; //the instruction that we are going to be using
+   output wire [15:0] pc_temp;
 
 
-   wire [15:0] pc_temp;
+   //wire [15:0] pc_temp;
 
    //initialize pc
    dff pc [15:0] (.q(pc_temp), .d(PC_in), .clk(clk), .rst(rst));
