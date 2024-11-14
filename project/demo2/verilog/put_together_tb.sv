@@ -175,7 +175,7 @@ module put_together_tb();
     .clk(clk), .rst(rst), .newPC(pc_goes_back_fetch_in_MEM_WB), .MemRead(memory_data_to_MEM_WB), .sevenext(i2_out_EX_MEM), .halt(halt_out_EX_MEM));
 
 
-    MEM_WB latch4(.RegSrc_in(RegSrc_out_ID_EX), .RegSrc_out(RegSrc_out_MEM_WB), .MemRead_in(memory_data_to_MEM_WB), .mem_data_out(memory_data_out_MEM_WB), .alu_data_in(Alu_result_out_EX_MEM), 
+    MEM_WB latch4(.RegSrc_in(RegSrc_out_EX_MEM), .RegSrc_out(RegSrc_out_MEM_WB), .MemRead_in(memory_data_to_MEM_WB), .mem_data_out(memory_data_out_MEM_WB), .alu_data_in(Alu_result_out_EX_MEM), 
     .pc_data_in(pc_next_out_EX_MEM), .Binput_in(Binput_out_EX_MEM), .alu_data_out(Alu_result_out_MEM_WB), .pc_data_out(pc_goes_back_fetch_out_MEM_WB), .Binput_out(Binput_out_MEM_WB), .RegWrt_in(RegWrt_out_EX_MEM), .RegWrt_out(RegWrt_out_MEM_WB), 
     .write_reg_in(write_reg_out_EX_MEM), .write_reg_out(write_reg_out_MEM_WB), .clk(clk), .rst(rst));
 
@@ -213,8 +213,7 @@ module put_together_tb();
         instruction = 16'b1100000000000001;
 
         @(negedge clk); //F
-
-         instruction = 16'b0;
+        instruction = 16'H0800;
 
         @(negedge clk); //D
 
