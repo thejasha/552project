@@ -206,14 +206,11 @@ module put_together_tb();
     initial begin
         clk = 1'b0;
         rst = 1'b1;
-        temp = 16'b0;
 
         @(negedge clk); //R
         rst = 1'b0;
-        instruction = 16'b1100000000000001;
 
         @(negedge clk); //F
-        instruction = 16'H0800;
 
         @(negedge clk); //D
 
