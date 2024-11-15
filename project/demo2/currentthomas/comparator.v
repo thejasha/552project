@@ -1,4 +1,4 @@
-module comparator (inst, execute, memory, writeback, BSrc, Branch, BranchEx, NOPEx, NOPMem, NOPWB, sendNOP);
+module comparator (inst, execute, memory, writeback, BSrc, Branch, BranchEx, NOPEx, NOPMem, NOPWB, WRMEM, WRWB, sendNOP);
     //NOPEx/NOPMem/NOPWB are low when that is a nop inst
     input wire [15:0] inst;
     input wire[2:0]  execute, memory, writeback;
@@ -11,6 +11,7 @@ module comparator (inst, execute, memory, writeback, BSrc, Branch, BranchEx, NOP
     wire [2:0] RegS, RegT;
     assign RegS = inst[10:8];
     assign RegT = inst[7:5];
+    input wire WRMEM, WRWB;
 
 
 
@@ -23,7 +24,7 @@ module comparator (inst, execute, memory, writeback, BSrc, Branch, BranchEx, NOP
     wire compWB;
     assign compWB = BSrc==2'b00 ? (writeback == RegS) | (writeback == RegT) : (writeback == RegS);//questionable, might remove cause it would add extra stall
 
-    assign regEqual = (compEx & NOPEx) | (compMem & NOPMem) | (compWB & NOPWB);
+    assign regEqual = (compEx & NOPEx) | (compMem & NOPMem & WRMEM) | (compWB & NOPWB & WRWB);
 
 
 

@@ -196,12 +196,12 @@ module proc (/*AUTOARG*/
             .data_write(data_write), .ALUOpr(ALUOpr_to_ID_EX), .Bsrc(BSrc_to_ID_EX), .InvB(InvB_to_ID_EX), .InvA(InvA_to_ID_EX), .ImmSrc(ImmSrc), .MemWrt(MemWrt_Decode_Out), .ALUJMP(ALUJMP_in_ID_EX), .PC_or_add(PC_or_add_in_ID_EX), .RegSrc(RegSrc_to_ID_EX), .SLBI(SLBI_to_ID_EX), 
             .BTR(BTR_to_ID_EX), .branching(branching_Decode_Out), .branch_command(branch_command_to_ID_EX), .SetCtrl(SetCtrl_to_ID_EX), .halt(halt_to_ID_EX), .RegWrt(RegWrt_Decode_Out), .write_reg_from_wb(write_reg_out_MEM_WB), .write_reg_out(write_reg_to_ID_EX), .RegWrt_from_wb(RegWrt_out_MEM_WB));
 
-    comparator IDUUT(.inst(instruction_out_IF_ID), .execute(write_reg_out_ID_EX), .memory(write_reg_out_EX_MEM), .writeback(write_reg_out_MEM_WB), .BSrc(BSrc_to_ID_EX), .Branch(branching_to_ID_EX), .BranchEx(branching_out_ID_EX), .NOPEx(Nop_or_Branch), .NOPMem(NOP_Out_ID_MEM), .NOPWB(NOP_Out_ID_WB), .sendNOP(SendNop));
+    comparator IDUUT(.inst(instruction_out_IF_ID), .execute(write_reg_out_ID_EX), .memory(write_reg_out_EX_MEM), .writeback(write_reg_out_MEM_WB), .BSrc(BSrc_to_ID_EX), .Branch(branching_to_ID_EX), .BranchEx(branching_out_ID_EX), .NOPEx(Nop_or_Branch), .NOPMem(NOP_Out_ID_MEM), .NOPWB(NOP_Out_ID_WB), .WRMEM(RegWrt_out_EX_MEM), .WRWB(RegWrt_out_MEM_WB), .sendNOP(SendNop));
 
 
     
     
-    assign branchNOP =  branching_out_ID_EX | branching_out_EX_MEM;
+    assign branchNOP =  branching_out_ID_EX | branching_out_EX_MEM | branching_out_MEM_WB;
 
     assign MemWrt_to_ID_EX = (SendNop & ~branchNOP) ? MemWrt_Decode_Out : 1'b0;
     assign RegWrt_to_ID_EX = (SendNop & ~branchNOP) ? RegWrt_Decode_Out : 1'b0;
