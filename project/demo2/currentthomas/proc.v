@@ -159,23 +159,24 @@ module proc (/*AUTOARG*/
     wire [15:0] Alu_result_out_MEM_WB;
 
     wire [2:0] write_reg_out_MEM_WB;
-
+    wire branching_out_MEM_WB;
 
     wire err1;
-
+    wire branchNOP;
     //
 
     //might have to code something for pc
 
-    //muxtwo chooses plus2 or repeat the next instruction
-    //muxone is for jumps and branchs
-    //instagain repeats the current instruction before the fetch latch when there is a nop so if inst3 causes nop that inst repeats and inst4s pc will repeat until it passes
     wire [15:0] MUX_OUT_ONE, MUX_OUT_TWO, PC_NO_PLUS_TWO, PC_NO_PLUS_TWO_BACK;
     wire SendNop;
     assign MUX_OUT_ONE = (branchtake_out_EX_MEM | PC_or_add_out_EX_MEM | ALUJMP_out_EX_MEM)? pc_goes_back_fetch_in_MEM_WB : pc_next_to_IF_ID;
-    assign MUX_OUT_TWO = (~SendNop & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO : MUX_OUT_ONE;
+    assign MUX_OUT_TWO = (~(SendNop) & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO : MUX_OUT_ONE;
     wire [15:0] inst_again;
-    assign inst_again = (~SendNop & (instruction_out_IF_ID[15:11] !=5'b00001)) ? instruction_out_IF_ID : instruction;
+    assign inst_again = (~(SendNop & ~branchNOP) & (instruction_out_IF_ID[15:11] !=5'b00001)) ? instruction_out_IF_ID : instruction;
+
+
+    wire [15:0] pc_repeat;
+    assign pc_repeat = (~(SendNop & ~branchNOP) & (instruction_out_IF_ID[15:11] != 5'b00001)) ? pc_next_out_IF_ID : pc_next_to_IF_ID ;
 
     fetch iDUU1(.PC_in(MUX_OUT_TWO), .PC_next(pc_next_to_IF_ID), .instruction(instruction), .pc_temp(PC_NO_PLUS_TWO), .clk(clk), .rst(rst));
 
@@ -188,16 +189,23 @@ module proc (/*AUTOARG*/
     wire NOP_Out_ID_EX;
     wire NOP_Out_ID_MEM;
     wire NOP_Out_ID_WB;
+    wire branching_Decode_Out;
+    wire Nop_or_Branch;
 
     decode iDUU2 (.clk(clk), .rst(rst), .err(err1), .instruction(instruction_out_IF_ID), .read_data_1(read_data_1_to_ID_EX), .read_data_2(read_data_2_to_ID_EX), .i_1(i1_to_ID_EX), .i_2(i2_to_ID_EX), .word_align_jump(word_align_jump_to_ID_EX),  .to_shift(to_shift_to_ID_EX), 
             .data_write(data_write), .ALUOpr(ALUOpr_to_ID_EX), .Bsrc(BSrc_to_ID_EX), .InvB(InvB_to_ID_EX), .InvA(InvA_to_ID_EX), .ImmSrc(ImmSrc), .MemWrt(MemWrt_Decode_Out), .ALUJMP(ALUJMP_in_ID_EX), .PC_or_add(PC_or_add_in_ID_EX), .RegSrc(RegSrc_to_ID_EX), .SLBI(SLBI_to_ID_EX), 
-            .BTR(BTR_to_ID_EX), .branching(branching_to_ID_EX), .branch_command(branch_command_to_ID_EX), .SetCtrl(SetCtrl_to_ID_EX), .halt(halt_to_ID_EX), .RegWrt(RegWrt_Decode_Out), .write_reg_from_wb(write_reg_out_MEM_WB), .write_reg_out(write_reg_to_ID_EX), .RegWrt_from_wb(RegWrt_out_MEM_WB));
+            .BTR(BTR_to_ID_EX), .branching(branching_Decode_Out), .branch_command(branch_command_to_ID_EX), .SetCtrl(SetCtrl_to_ID_EX), .halt(halt_to_ID_EX), .RegWrt(RegWrt_Decode_Out), .write_reg_from_wb(write_reg_out_MEM_WB), .write_reg_out(write_reg_to_ID_EX), .RegWrt_from_wb(RegWrt_out_MEM_WB));
 
-    comparator IDUUT(.inst(instruction_out_IF_ID), .execute(write_reg_out_ID_EX), .memory(write_reg_out_EX_MEM), .writeback(write_reg_out_MEM_WB), .BSrc(BSrc_to_ID_EX), .Branch(branching_to_ID_EX), .BranchEx(branching_out_ID_EX), .NOPEx(NOP_Out_ID_EX), .NOPMem(NOP_Out_ID_MEM), .NOPWB(NOP_Out_ID_WB), .sendNOP(SendNop));
+    comparator IDUUT(.inst(instruction_out_IF_ID), .execute(write_reg_out_ID_EX), .memory(write_reg_out_EX_MEM), .writeback(write_reg_out_MEM_WB), .BSrc(BSrc_to_ID_EX), .Branch(branching_to_ID_EX), .BranchEx(branching_out_ID_EX), .NOPEx(Nop_or_Branch), .NOPMem(NOP_Out_ID_MEM), .NOPWB(NOP_Out_ID_WB), .sendNOP(SendNop));
 
-    assign MemWrt_to_ID_EX = SendNop ? MemWrt_Decode_Out : 1'b0;
-    assign RegWrt_to_ID_EX = SendNop ? RegWrt_Decode_Out : 1'b0;
 
+    
+    
+    assign branchNOP =  branching_out_ID_EX | branching_out_EX_MEM;
+
+    assign MemWrt_to_ID_EX = (SendNop & ~branchNOP) ? MemWrt_Decode_Out : 1'b0;
+    assign RegWrt_to_ID_EX = (SendNop & ~branchNOP) ? RegWrt_Decode_Out : 1'b0;
+    assign branching_to_ID_EX = (SendNop) ? branching_Decode_Out : 1'b0;
 
 
     //data write will come back from memory, dont even need to latch it
@@ -207,7 +215,7 @@ module proc (/*AUTOARG*/
             .ReadData2_in(read_data_2_to_ID_EX), .ReadData2_out(read_data_2_out_ID_EX), .fourExtend_in(i1_to_ID_EX), .fourExtend_out(i1_out_ID_EX), .sevenExtend_in(i2_to_ID_EX), .sevenExtend_out(i2_out_ID_EX), .shifted_in(to_shift_to_ID_EX), .shifted_out(to_shift_out_ID_EX), 
             .MemWrt_in(MemWrt_to_ID_EX), .MemWrt_out(MemWrt_out_ID_EX), .ALUJMP_in(ALUJMP_in_ID_EX), .ALUJMP_out(ALUJMP_out_ID_EX), .PC_or_add_in(PC_or_add_in_ID_EX), .PC_or_add_out(PC_or_add_out_ID_EX), .halt_in(halt_to_ID_EX), .halt_out(halt_out_ID_EX), .word_align_jump_in(word_align_jump_to_ID_EX), .word_align_jump_out(word_align_jump_out_ID_EX), 
             .RegWrt_in(RegWrt_to_ID_EX), .RegWrt_out(RegWrt_out_ID_EX), .RegSrc_in(RegSrc_to_ID_EX), .RegSrc_out(RegSrc_out_ID_EX), .pc2_in(pc_next_out_IF_ID), .pc2_out(pc_next_out_ID_EX), .write_reg_in(write_reg_to_ID_EX), .write_reg_out(write_reg_out_ID_EX), .SendNOP_In(SendNop), .SendNOP_Out(NOP_Out_ID_EX), .clk(clk), .rst(rst));
-    
+    assign Nop_or_Branch = NOP_Out_ID_EX & ~branching_out_ID_EX;
     
     execute iDUU3(.BSrc(BSrc_out_ID_EX), .InvB(InvB_out_ID_EX), .InvA(InvA_out_ID_EX), .ALUCtrl(ALUOpr_out_ID_EX), .ReadData1(read_data_1_out_ID_EX), .ReadData2(read_data_2_out_ID_EX), 
         .fourExtend(i1_out_ID_EX), .sevenExtend(i2_out_ID_EX), .shifted(to_shift_out_ID_EX), .BranchCtrl(branch_command_out_ID_EX), 
@@ -218,7 +226,7 @@ module proc (/*AUTOARG*/
         .branch_out(branching_out_EX_MEM), .branch_in(branching_out_ID_EX), .PC_or_add_in(PC_or_add_out_ID_EX), .PC_or_add_out(PC_or_add_out_EX_MEM), .ALUJmp_in(ALUJMP_out_ID_EX), .ALUJmp_out(ALUJMP_out_EX_MEM), .MemWrt_in(MemWrt_out_ID_EX), 
         .MemWrt_out(MemWrt_out_EX_MEM), .halt_in(halt_out_ID_EX), .halt_out(halt_out_EX_MEM), .SgnExt_in(word_align_jump_out_ID_EX), .SgnExt_out(word_align_jump_out_EX_MEM), .readData2_in(read_data_2_out_ID_EX), .readData2_out(read_data_2_out_EX_MEM), 
         .pc2_in(pc_next_out_ID_EX), .pc2_out(pc_next_out_EX_MEM), .sevenext_in(i2_out_ID_EX), .sevenext_out(i2_out_EX_MEM), .RegWrt_in(RegWrt_out_ID_EX), .RegWrt_out(RegWrt_out_EX_MEM), .RegSrc_in(RegSrc_out_ID_EX), 
-        .RegSrc_out(RegSrc_out_EX_MEM), .write_reg_in(write_reg_out_ID_EX), .write_reg_out(write_reg_out_EX_MEM), .SendNOP_In(NOP_Out_ID_EX), .SendNOP_Out(NOP_Out_ID_MEM), .clk(clk), .rst(rst));
+        .RegSrc_out(RegSrc_out_EX_MEM), .write_reg_in(write_reg_out_ID_EX), .write_reg_out(write_reg_out_EX_MEM), .SendNOP_In(Nop_or_Branch), .SendNOP_Out(NOP_Out_ID_MEM), .clk(clk), .rst(rst));
 
 
     memory iDUU4(.branch(branchtake_out_EX_MEM), .alu(Alu_result_out_EX_MEM), .SgnExt(word_align_jump_out_ID_EX), .readData2(read_data_2_out_EX_MEM), .pc2(pc_next_out_EX_MEM), .ALUJmp(ALUJMP_out_EX_MEM), .PC_or_add(PC_or_add_out_EX_MEM), .MemWrt(MemWrt_out_EX_MEM), 
@@ -227,7 +235,7 @@ module proc (/*AUTOARG*/
 
     MEM_WB latch4(.RegSrc_in(RegSrc_out_EX_MEM), .RegSrc_out(RegSrc_out_MEM_WB), .MemRead_in(memory_data_to_MEM_WB), .mem_data_out(memory_data_out_MEM_WB), .alu_data_in(Alu_result_out_EX_MEM), 
     .pc_data_in(pc_next_out_EX_MEM), .Binput_in(Binput_out_EX_MEM), .alu_data_out(Alu_result_out_MEM_WB), .pc_data_out(pc_goes_back_fetch_out_MEM_WB), .Binput_out(Binput_out_MEM_WB), .RegWrt_in(RegWrt_out_EX_MEM), .RegWrt_out(RegWrt_out_MEM_WB), 
-    .write_reg_in(write_reg_out_EX_MEM), .write_reg_out(write_reg_out_MEM_WB), .SendNOP_In(NOP_Out_ID_MEM), .SendNOP_Out(NOP_Out_ID_WB), .clk(clk), .rst(rst));
+    .write_reg_in(write_reg_out_EX_MEM), .write_reg_out(write_reg_out_MEM_WB), .SendNOP_In(NOP_Out_ID_MEM), .SendNOP_Out(NOP_Out_ID_WB), .b_in(branching_out_EX_MEM), .b_out(branching_out_MEM_WB), .clk(clk), .rst(rst));
 
 
     wb iDUU5(.RegSrc(RegSrc_out_MEM_WB), .mem_data(memory_data_out_MEM_WB), .alu_data(Alu_result_out_MEM_WB), .Binput(Binput_out_MEM_WB), .pc_data(pc_goes_back_fetch_out_MEM_WB), .data_to_write(data_write));

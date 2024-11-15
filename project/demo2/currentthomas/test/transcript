@@ -1,0 +1,7 @@
+# vsim -c .. -lib __work -voptargs="+acc" -wlf dump.wlf -do "log -howmany -rec /* ; run -all" 
+# Start time: 16:29:19 on Oct 24,2024
+# ** Error (suppressible): (vsim-19) Failed to access library '.' at ".".
+# No such file or directory. (errno = ENOENT)
+# Error loading design
+# End time: 16:29:19 on Oct 24,2024, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0

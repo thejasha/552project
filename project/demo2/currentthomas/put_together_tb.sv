@@ -1,195 +1,166 @@
-/* $Author: sinclair $ */
-/* $LastChangedDate: 2020-02-09 17:03:45 -0600 (Sun, 09 Feb 2020) $ */
-/* $Rev: 46 $ */
-`default_nettype none
-module proc (/*AUTOARG*/
-   // Outputs
-   err, 
-   // Inputs
-   clk, rst
-   );
+module put_together_tb();
 
-   input wire clk;
-   input wire rst;
+    // Declare signals
+    logic clk, rst, err; //error will output, clk rst are inputs
+    
 
-   output reg err;
-
-   // None of the above lines can be modified
-
-   // OR all the err ouputs for every sub-module and assign it as this
-   // err output
-   
-   // As desribed in the homeworks, use the err signal to trap corner
-   // cases that you think are illegal in your statemachines
-   
-   clkrst my_clkrst(.clk(clk), .rst(rst), .err(err)); 
-
-   /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
-
-   wire [15:0] data_write;
+    logic [15:0] data_write;
 
     //externeal control singals
-    wire ImmSrc;
+    logic ImmSrc;
 
-    wire [15:0] temp;//this just dont work rn, its the instructions from memeory
+    logic [15:0] temp;//this just dont work rn, its the instructions from memeory
 
     //IF_ID FLOP
-    wire [15:0] instruction;
-    wire [15:0] instruction_out_IF_ID;
-    wire [15:0] pc_next_to_IF_ID;
-    wire [15:0] pc_next_out_IF_ID;
+    logic [15:0] instruction;
+    logic [15:0] instruction_out_IF_ID;
+    logic [15:0] pc_next_to_IF_ID;
+    logic [15:0] pc_next_out_IF_ID;
 
     //ID_EX FLOP
-    wire [15:0] pc_next_out_ID_EX;
+    logic [15:0] pc_next_out_ID_EX;
     
-    wire BTR_to_ID_EX;
-    wire BTR_out_ID_EX;
+    logic BTR_to_ID_EX;
+    logic BTR_out_ID_EX;
 
-    wire [1:0] BSrc_to_ID_EX;
-    wire [1:0] BSrc_out_ID_EX;
+    logic [1:0] BSrc_to_ID_EX;
+    logic [1:0] BSrc_out_ID_EX;
 
-    wire InvB_to_ID_EX;
-    wire InvB_out_ID_EX;
+    logic InvB_to_ID_EX;
+    logic InvB_out_ID_EX;
     
-    wire InvA_to_ID_EX;
-    wire InvA_out_ID_EX;
+    logic InvA_to_ID_EX;
+    logic InvA_out_ID_EX;
 
-    wire [15:0] read_data_1_to_ID_EX;
-    wire [15:0] read_data_1_out_ID_EX;
+    logic [15:0] read_data_1_to_ID_EX;
+    logic [15:0] read_data_1_out_ID_EX;
 
-    wire [15:0] read_data_2_to_ID_EX;
-    wire [15:0] read_data_2_out_ID_EX;
+    logic [15:0] read_data_2_to_ID_EX;
+    logic [15:0] read_data_2_out_ID_EX;
 
-    wire [15:0] i1_to_ID_EX;
-    wire [15:0] i1_out_ID_EX;
+    logic [15:0] i1_to_ID_EX;
+    logic [15:0] i1_out_ID_EX;
 
-    wire [15:0] i2_to_ID_EX;
-    wire [15:0] i2_out_ID_EX;
+    logic [15:0] i2_to_ID_EX;
+    logic [15:0] i2_out_ID_EX;
 
-    wire [15:0] word_align_jump_to_ID_EX;
-    wire [15:0] word_align_jump_out_ID_EX;
+    logic [15:0] word_align_jump_to_ID_EX;
+    logic [15:0] word_align_jump_out_ID_EX;
 
-    wire [15:0] to_shift_to_ID_EX;
-    wire [15:0] to_shift_out_ID_EX;
+    logic [15:0] to_shift_to_ID_EX;
+    logic [15:0] to_shift_out_ID_EX;
 
-    wire [2:0] ALUOpr_to_ID_EX;
-    wire [2:0] ALUOpr_out_ID_EX;
+    logic [2:0] ALUOpr_to_ID_EX;
+    logic [2:0] ALUOpr_out_ID_EX;
 
-    wire MemWrt_to_ID_EX;
-    wire MemWrt_out_ID_EX;
+    logic MemWrt_to_ID_EX;
+    logic MemWrt_out_ID_EX;
 
-    wire [1:0] branch_command_to_ID_EX;
-    wire [1:0] branch_command_out_ID_EX;
+    logic [1:0] branch_command_to_ID_EX;
+    logic [1:0] branch_command_out_ID_EX;
 
-    wire branching_to_ID_EX;
-    wire branching_out_ID_EX;
+    logic branching_to_ID_EX;
+    logic branching_out_ID_EX;
 
-    wire SLBI_to_ID_EX;
-    wire SLBI_out_ID_EX;
+    logic SLBI_to_ID_EX;
+    logic SLBI_out_ID_EX;
 
-    wire [2:0] SetCtrl_to_ID_EX;
-    wire [2:0] SetCtrl_out_ID_EX;
+    logic [2:0] SetCtrl_to_ID_EX;
+    logic [2:0] SetCtrl_out_ID_EX;
 
-    wire ALUJMP_in_ID_EX;
-    wire ALUJMP_out_ID_EX;
+    logic ALUJMP_in_ID_EX;
+    logic ALUJMP_out_ID_EX;
 
-    wire PC_or_add_in_ID_EX;
-    wire PC_or_add_out_ID_EX;
+    logic PC_or_add_in_ID_EX;
+    logic PC_or_add_out_ID_EX;
 
-    wire [1:0] RegSrc_to_ID_EX;
-    wire [1:0] RegSrc_out_ID_EX;
+    logic [1:0] RegSrc_to_ID_EX;
+    logic [1:0] RegSrc_out_ID_EX;
 
-    wire halt_to_ID_EX;
-    wire halt_out_ID_EX;
+    logic halt_to_ID_EX;
+    logic halt_out_ID_EX;
 
-    wire RegWrt_to_ID_EX;
-    wire RegWrt_out_ID_EX;
+    logic RegWrt_to_ID_EX;
+    logic RegWrt_out_ID_EX;
 
-    wire [2:0] write_reg_to_ID_EX;
-    wire [2:0] write_reg_out_ID_EX;
+    logic [2:0] write_reg_to_ID_EX;
+    logic [2:0] write_reg_out_ID_EX;
 
     //EX_MEM FLOP
-    wire branchtake_to_EX_MEM;
-    wire branchtake_out_EX_MEM;
+    logic branchtake_to_EX_MEM;
+    logic branchtake_out_EX_MEM;
 
-    wire [15:0] Alu_result_to_EX_MEM;
-    wire [15:0] Alu_result_out_EX_MEM;
+    logic [15:0] Alu_result_to_EX_MEM;
+    logic [15:0] Alu_result_out_EX_MEM;
 
-    wire [15:0] Binput_to_EX_MEM;
-    wire [15:0] Binput_out_EX_MEM;
+    logic [15:0] Binput_to_EX_MEM;
+    logic [15:0] Binput_out_EX_MEM;
 
-    wire branching_out_EX_MEM;
+    logic branching_out_EX_MEM;
 
-    wire PC_or_add_out_EX_MEM;
+    logic PC_or_add_out_EX_MEM;
 
-    wire ALUJMP_out_EX_MEM;
+    logic ALUJMP_out_EX_MEM;
 
-    wire MemWrt_out_EX_MEM;
+    logic MemWrt_out_EX_MEM;
 
-    wire halt_out_EX_MEM;
+    logic halt_out_EX_MEM;
 
-    wire [15:0] word_align_jump_out_EX_MEM;
+    logic [15:0] word_align_jump_out_EX_MEM;
  
-    wire [15:0] read_data_2_out_EX_MEM;
+    logic [15:0] read_data_2_out_EX_MEM;
 
-    wire [15:0] pc_next_out_EX_MEM;
+    logic [15:0] pc_next_out_EX_MEM;
 
-    wire [15:0] i2_out_EX_MEM;
+    logic [15:0] i2_out_EX_MEM;
 
-    wire RegWrt_out_EX_MEM;
+    logic RegWrt_out_EX_MEM;
 
-    wire [1:0] RegSrc_out_EX_MEM;
+    logic [1:0] RegSrc_out_EX_MEM;
 
-    wire [2:0] write_reg_out_EX_MEM;
+    logic [2:0] write_reg_out_EX_MEM;
 
     // MEM_WB flop
 
-    wire [15:0] memory_data_to_MEM_WB;
-    wire [15:0] memory_data_out_MEM_WB;
+    logic [15:0] memory_data_to_MEM_WB;
+    logic [15:0] memory_data_out_MEM_WB;
 
-    wire [15:0] pc_goes_back_fetch_in_MEM_WB;
-    wire [15:0] pc_goes_back_fetch_out_MEM_WB;
+    logic [15:0] pc_goes_back_fetch_in_MEM_WB;
+    logic [15:0] pc_goes_back_fetch_out_MEM_WB;
 
-    wire [1:0] RegSrc_out_MEM_WB;
+    logic [1:0] RegSrc_out_MEM_WB;
 
-    wire [15:0] Binput_out_MEM_WB;
+    logic [15:0] Binput_out_MEM_WB;
     
-    wire RegWrt_out_MEM_WB;
+    logic RegWrt_out_MEM_WB;
 
-    wire [15:0] Alu_result_out_MEM_WB;
+    logic [15:0] Alu_result_out_MEM_WB;
 
-    wire [2:0] write_reg_out_MEM_WB;
-
-
-    wire err1;
+    logic [2:0] write_reg_out_MEM_WB;
 
     //
 
     //might have to code something for pc
 
-    //muxtwo chooses plus2 or repeat the next instruction
-    //muxone is for jumps and branchs
-    //instagain repeats the current instruction before the fetch latch when there is a nop so if inst3 causes nop that inst repeats and inst4s pc will repeat until it passes
     wire [15:0] MUX_OUT_ONE, MUX_OUT_TWO, PC_NO_PLUS_TWO, PC_NO_PLUS_TWO_BACK;
-    wire SendNop;
-    assign MUX_OUT_ONE = (branchtake_out_EX_MEM | PC_or_add_out_EX_MEM | ALUJMP_out_EX_MEM)? pc_goes_back_fetch_in_MEM_WB : pc_next_to_IF_ID;
-    assign MUX_OUT_TWO = (~SendNop & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO : MUX_OUT_ONE;
-    wire [15:0] inst_again;
-    assign inst_again = (~SendNop & (instruction_out_IF_ID[15:11] !=5'b00001)) ? instruction_out_IF_ID : instruction;
 
-    fetch iDUU1(.PC_in(MUX_OUT_TWO), .PC_next(pc_next_to_IF_ID), .instruction(instruction), .pc_temp(PC_NO_PLUS_TWO), .clk(clk), .rst(rst));
+    assign MUX_OUT_ONE = (branchtake_out_EX_MEM | PC_or_add_out_EX_MEM | ALUJMP_out_EX_MEM)? pc_next_to_IF_ID : pc_next_out_IF_ID;
+    assign MUX_OUT_TWO = (~SendNop & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO_BACK : MUX_OUT_ONE;
+
+    fetch iDUU1(.PC_in(pc_goes_back_fetch_in_MEM_WB), .PC_next(pc_next_to_IF_ID), .instruction(temp), .pc_temp(PC_NO_PLUS_TWO), .clk(clk), .rst(rst));
 
 
-    IF_ID latch1(.PC_next_in(pc_next_to_IF_ID), .PC_next_in_out(pc_next_out_IF_ID), .instruction_in(inst_again), .instruction_out(instruction_out_IF_ID), .PC_NO_PLUS_TWO_IN(PC_NO_PLUS_TWO), .PC_NO_PLUS_TWO_OUT(PC_NO_PLUS_TWO_BACK), .clk(clk), .rst(rst));
+    IF_ID latch1(.PC_next_in(pc_next_to_IF_ID), .PC_next_in_out(pc_next_out_IF_ID), .instruction_in(instruction), .instruction_out(instruction_out_IF_ID), .PC_NO_PLUS_TWO_IN(PC_NO_PLUS_TWO), .PC_NO_PLUS_TWO_OUT(PC_NO_PLUS_TWO_BACK), .clk(clk), .rst(rst));
 
     // need to make the regwrt singal go thru all flops then back, same with the register write address
     wire MemWrt_Decode_Out;
     wire RegWrt_Decode_Out;
+    wire SendNop;
     wire NOP_Out_ID_EX;
     wire NOP_Out_ID_MEM;
     wire NOP_Out_ID_WB;
 
-    decode iDUU2 (.clk(clk), .rst(rst), .err(err1), .instruction(instruction_out_IF_ID), .read_data_1(read_data_1_to_ID_EX), .read_data_2(read_data_2_to_ID_EX), .i_1(i1_to_ID_EX), .i_2(i2_to_ID_EX), .word_align_jump(word_align_jump_to_ID_EX),  .to_shift(to_shift_to_ID_EX), 
+    decode iDUU2 (.clk(clk), .rst(rst), .err(err), .instruction(instruction_out_IF_ID), .read_data_1(read_data_1_to_ID_EX), .read_data_2(read_data_2_to_ID_EX), .i_1(i1_to_ID_EX), .i_2(i2_to_ID_EX), .word_align_jump(word_align_jump_to_ID_EX),  .to_shift(to_shift_to_ID_EX), 
             .data_write(data_write), .ALUOpr(ALUOpr_to_ID_EX), .Bsrc(BSrc_to_ID_EX), .InvB(InvB_to_ID_EX), .InvA(InvA_to_ID_EX), .ImmSrc(ImmSrc), .MemWrt(MemWrt_Decode_Out), .ALUJMP(ALUJMP_in_ID_EX), .PC_or_add(PC_or_add_in_ID_EX), .RegSrc(RegSrc_to_ID_EX), .SLBI(SLBI_to_ID_EX), 
             .BTR(BTR_to_ID_EX), .branching(branching_to_ID_EX), .branch_command(branch_command_to_ID_EX), .SetCtrl(SetCtrl_to_ID_EX), .halt(halt_to_ID_EX), .RegWrt(RegWrt_Decode_Out), .write_reg_from_wb(write_reg_out_MEM_WB), .write_reg_out(write_reg_to_ID_EX), .RegWrt_from_wb(RegWrt_out_MEM_WB));
 
@@ -233,6 +204,50 @@ module proc (/*AUTOARG*/
     wb iDUU5(.RegSrc(RegSrc_out_MEM_WB), .mem_data(memory_data_out_MEM_WB), .alu_data(Alu_result_out_MEM_WB), .Binput(Binput_out_MEM_WB), .pc_data(pc_goes_back_fetch_out_MEM_WB), .data_to_write(data_write));
 
 
-endmodule // proc
-`default_nettype wire
-// DUMMY LINE FOR REV CONTROL :0:
+
+    // //CODE WITH CONNECTIONS THAT WORKED
+    // fetch iDUU1(.PC_in(pc_goes_back_fetch), .PC_next(pc_next_to_pc2), .instruction(temp), .clk(clk), .rst(rst));
+
+    // decode iDUU2 (.clk(clk), .rst(rst), .err(err), .instruction(instruction), .read_data_1(read_data_1), .read_data_2(read_data_2), .i_1(i_1), .i_2(i_2), .word_align_jump(word_align_jump),  .to_shift(to_shift), 
+    //         .data_write(data_write), .ALUOpr(ALUOpr), .Bsrc(Bsrc), .InvB(InvB), .InvA(InvA), .ImmSrc(ImmSrc), .MemWrt(MemWrt), .ALUJMP(ALUJMP), .PC_or_add(PC_or_add), .RegSrc(RegSrc), .SLBI(SLBI), 
+    //         .BTR(BTR), .branching(branching), .branch_command(branch_command), .SetCtrl(SetCtrl));
+    
+    // execute iDUU3(.BSrc(Bsrc), .InvB(InvB), .InvA(InvA), .ALUCtrl(ALUOpr), .ReadData1(read_data_1), .ReadData2(read_data_2), 
+    //     .fourExtend(i_1), .sevenExtend(i_2), .shifted(to_shift), .BranchCtrl(branch_command), 
+    //     .branch(branching), .SLBI(SLBI), .SetCtrl3(SetCtrl), 
+    //     .BTR(BTR), .ALU(Alu_result), .BInput(Binput), .branchtake(branchtake));
+
+
+    // memory iDUU4(.branch(branchtake), .alu(Alu_result), .SgnExt(word_align_jump), .readData2(read_data_2), .pc2(pc_next_to_pc2), .ALUJmp(ALUJMP), .PC_or_add(PC_or_add), .MemWrt(MemWrt), 
+    // .clk(clk), .rst(rst), .newPC(pc_goes_back_fetch), .MemRead(memory_data), .sevenext(i_2));
+
+    // wb iDUU5(.RegSrc(RegSrc), .mem_data(memory_data), .alu_data(Alu_result), .Binput(Binput), .pc_data(pc_next_to_pc2), .data_to_write(data_write));
+
+    
+    initial begin
+        clk = 1'b0;
+        rst = 1'b1;
+
+        @(negedge clk); //R
+        rst = 1'b0;
+
+        @(negedge clk); //F
+
+        @(negedge clk); //D
+
+        @(negedge clk); //E
+        
+        @(negedge clk); //M
+
+        @(negedge clk); //X
+        
+        @(negedge clk);
+
+
+        $stop();
+    end
+
+    always 
+        #5 clk = ~clk;
+
+endmodule
