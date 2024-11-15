@@ -143,11 +143,12 @@ module put_together_tb();
     //might have to code something for pc
 
     wire [15:0] MUX_OUT_ONE, MUX_OUT_TWO, PC_NO_PLUS_TWO, PC_NO_PLUS_TWO_BACK;
+    wire SendNop;
 
     assign MUX_OUT_ONE = (branchtake_out_EX_MEM | PC_or_add_out_EX_MEM | ALUJMP_out_EX_MEM)? pc_next_to_IF_ID : pc_next_out_IF_ID;
-    assign MUX_OUT_TWO = (~SendNop & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO_BACK : MUX_OUT_ONE;
+    assign MUX_OUT_TWO = (~SendNop & (instruction_out_IF_ID[15:11] != 5'b00001)) ? PC_NO_PLUS_TWO_BACK : PC_NO_PLUS_TWO;
 
-    fetch iDUU1(.PC_in(pc_goes_back_fetch_in_MEM_WB), .PC_next(pc_next_to_IF_ID), .instruction(temp), .pc_temp(PC_NO_PLUS_TWO), .clk(clk), .rst(rst));
+    fetch iDUU1(.PC_in(pc_next_to_IF_ID), .PC_next(pc_next_to_IF_ID), .instruction(temp), .pc_temp(PC_NO_PLUS_TWO), .clk(clk), .rst(rst));
 
 
     IF_ID latch1(.PC_next_in(pc_next_to_IF_ID), .PC_next_in_out(pc_next_out_IF_ID), .instruction_in(instruction), .instruction_out(instruction_out_IF_ID), .PC_NO_PLUS_TWO_IN(PC_NO_PLUS_TWO), .PC_NO_PLUS_TWO_OUT(PC_NO_PLUS_TWO_BACK), .clk(clk), .rst(rst));
@@ -155,7 +156,6 @@ module put_together_tb();
     // need to make the regwrt singal go thru all flops then back, same with the register write address
     wire MemWrt_Decode_Out;
     wire RegWrt_Decode_Out;
-    wire SendNop;
     wire NOP_Out_ID_EX;
     wire NOP_Out_ID_MEM;
     wire NOP_Out_ID_WB;
@@ -230,9 +230,10 @@ module put_together_tb();
 
         @(negedge clk); //R
         rst = 1'b0;
+        instruction = 16'b1100000000000001;
 
         @(negedge clk); //F
-
+        instruction = 16'h0800;
         @(negedge clk); //D
 
         @(negedge clk); //E
