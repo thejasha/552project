@@ -139,9 +139,9 @@ module proc_hier_pbench();
 
    assign WriteData = DUT.p0.iDUU2.registerfile.writeData;
    // Data being written to the register. (16 bits)
-   
-   wire [1:0]regsrc_data_read = DUT.p0.iDUU4.RegSrc;
-   assign MemRead = (regsrc_data_read == 2'b01);
+
+   wire [1:0]regsrc_data_read = DUT.p0.RegSrc_out_EX_MEM;
+   assign MemRead = (regsrc_data_read == 2'b01) & DUT.p0.RegWrt_out_EX_MEM;
   // assign MemRead =  DUT.p0.iDUU4.MemWrt;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
