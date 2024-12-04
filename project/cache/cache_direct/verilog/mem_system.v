@@ -37,7 +37,7 @@ module mem_system(/*AUTOARG*/
    wire enable_or;
    wire enable_force;
 
-   wire valid_to_cache;
+   reg valid_to_cache;
 
    //combo logic for the block
    assign enable_or = cache_rd | cache_wr;
@@ -74,25 +74,34 @@ module mem_system(/*AUTOARG*/
    //from controller
    wire controller_err;
 
+   reg [15:0] temp;
+
 
 
    //fsm states
-   parameter IDLE = 3'b000;
-   parameter TAG_CHECK = 3'b001;
-   parameter LOAD_HIT = 3'b010;
-   parameter STORE_HIT = 3'b011;
-   parameter ACCESS_READ = 3'b100;
-   parameter ACCESS_WRITE = 3'b101;
+   parameter IDLE = 4'b0000;
+   parameter TAG_CHECK = 4'b0001;
+   parameter LOAD_HIT = 4'b0010;
+   parameter STORE_HIT = 4'b0011;
+   parameter ACCESS_READ = 4'b0100;
+   parameter ACCESS_WRITE = 4'b0101;
+   parameter READ_WAIT1 = 4'b0111;
+   parameter READ_WAIT2 = 4'b1000;
+   parameter WRITE_WAIT1 = 4'b1001;
+   parameter WRITE_WAIT2 = 4'b1010;
+   parameter WRITE_WAIT3 = 4'b1011;
+   parameter WRITE_WAIT4 = 4'b1111;
 
 
 
    //FSM regs
-   reg [2:0] next_state;
-   wire [2:0] current_state;
+   reg [3:0] next_state;
+   wire [3:0] current_state;
 
    dff state_ff1(.q(current_state[0]), .d(next_state[0]), .clk(clk), .rst(rst));
    dff state_ff2(.q(current_state[1]), .d(next_state[1]), .clk(clk), .rst(rst));
    dff state_ff3(.q(current_state[2]), .d(next_state[2]), .clk(clk), .rst(rst));
+   dff state_ff4(.q(current_state[3]), .d(next_state[3]), .clk(clk), .rst(rst));
 
    /* data_mem = 1, inst_mem = 0 *
     * needed for cache parameter */
@@ -136,7 +145,7 @@ module mem_system(/*AUTOARG*/
    always @(*) begin
 
       //default
-      //Done=0;
+      Done=0;
       Stall=0;
       DataOut=0;
       next_state = current_state;
@@ -151,6 +160,7 @@ module mem_system(/*AUTOARG*/
       mem_write=0;
       mem_read=0;
       CacheHit=0;
+      valid_to_cache = 0;
 
       case (current_state)
          default: begin
@@ -163,21 +173,23 @@ module mem_system(/*AUTOARG*/
             cache_wr = Wr;
             cache_addr = Addr;
             cache_data_in = DataIn;
+            valid_to_cache = 1'b1;
+            temp = cache_data_out;
             next_state = real_hit ? (Rd ? LOAD_HIT : STORE_HIT) : (victimize ? ACCESS_READ : ACCESS_WRITE);
 
          end
 
-         LOAD_HIT: begin
-            DataOut = cache_data_out;
-            //Done = 1;
-            CacheHit=1;
+         LOAD_HIT: begin //load hit and store hit add an extra cycle since cache happens instantly
+            DataOut = temp;
+            Done = 1;
+            CacheHit = 1;
             next_state = IDLE;
 
          end
 
          STORE_HIT: begin
-            //Done = 1;
-            CacheHit=1;
+            Done = 1;
+            CacheHit = 1;
             next_state = IDLE;
          end
 
@@ -187,21 +199,51 @@ module mem_system(/*AUTOARG*/
             mem_write = 1;//writing dirty to mem
             mem_addr = {actual_tag, cache_addr[10:0]}; //takes in address from cc input
             mem_data_in = cache_data_out;
+            next_state = WRITE_WAIT1;
+            // i might not have to stall this many times
+         end
+
+         WRITE_WAIT1: begin 
+            next_state = WRITE_WAIT2;
+         end
+
+         WRITE_WAIT2: begin 
+            next_state = WRITE_WAIT3;
+         end
+
+         WRITE_WAIT3: begin 
+            next_state = WRITE_WAIT4;
+         end
+
+          WRITE_WAIT4: begin 
             next_state = ACCESS_WRITE;
          end
 
          ACCESS_WRITE: begin
             mem_read = 1;
             mem_addr = Addr;
+            next_state = READ_WAIT1;
+         end
 
+         READ_WAIT1: begin 
+            next_state = READ_WAIT2;
+         end
+
+         READ_WAIT2: begin 
             cache_wr = 1;
             cache_data_in = mem_data_out;
             cache_addr = Addr;
-            next_state = mem_stall ? ACCESS_WRITE : IDLE;
+            valid_to_cache = 1'b1;
+            // next_state = mem_stall ? ACCESS_WRITE : IDLE;
+            next_state = IDLE;
+            Done = 1;
          end
+
       endcase
    end
 
+
+   assign controller_err = Rd & Wr;
 
 
    
