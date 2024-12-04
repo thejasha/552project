@@ -80,18 +80,20 @@ module mem_system(/*AUTOARG*/
 
    //fsm states
    parameter IDLE = 4'b0000;
-   parameter TAG_CHECK = 4'b0001;
-   parameter LOAD_HIT = 4'b0010;
-   parameter STORE_HIT = 4'b0011;
-   parameter ACCESS_READ = 4'b0100;
-   parameter ACCESS_WRITE = 4'b0101;
-   parameter READ_WAIT1 = 4'b0111;
-   parameter READ_WAIT2 = 4'b1000;
-   parameter WRITE_WAIT1 = 4'b1001;
-   parameter WRITE_WAIT2 = 4'b1010;
-   parameter WRITE_WAIT3 = 4'b1011;
-   parameter WRITE_WAIT4 = 4'b1111;
-
+   parameter TAG_CHECK = 4'b0010;
+   parameter LOAD_HIT = 4'b0011;
+   parameter STORE_HIT = 4'b0100;
+   parameter ACCESS_READ_1 = 4'b0101;
+   parameter ACCESS_WRITE_1 = 4'b0110;
+   parameter ACCESS_WRITE_2 = 4'b0111;
+   parameter ACCESS_WRITE_3 = 4'b1000;
+   parameter ACCESS_WRITE_4 = 4'b1001;
+   parameter WRITE_WAIT1 = 4'b1010;
+   parameter WRITE_WAIT2 = 4'b1011;
+   parameter STORE_MISS_WRITE = 4'b1100;
+   parameter ACCESS_READ_2 = 4'b1101;
+   parameter ACCESS_READ_3 = 4'b1110;
+   parameter ACCESS_READ_4 = 4'b1111;
 
 
    //FSM regs
@@ -146,7 +148,7 @@ module mem_system(/*AUTOARG*/
 
       //default
       Done=0;
-      Stall=0;
+      Stall=1;
       DataOut=0;
       next_state = current_state;
       force_disable=0;
@@ -162,8 +164,11 @@ module mem_system(/*AUTOARG*/
       CacheHit=0;
       valid_to_cache = 0;
 
+      err = cache_err | controller_err | mem_err;
+
       case (current_state)
-         default: begin
+         IDLE: begin
+            Stall = 0;
             next_state = (Rd | Wr) ? TAG_CHECK : IDLE;
          end
 
@@ -175,7 +180,7 @@ module mem_system(/*AUTOARG*/
             cache_data_in = DataIn;
             valid_to_cache = 1'b1;
             temp = cache_data_out;
-            next_state = real_hit ? (Rd ? LOAD_HIT : STORE_HIT) : (victimize ? ACCESS_READ : ACCESS_WRITE);
+            next_state = real_hit ? (Rd ? LOAD_HIT : STORE_HIT) : (victimize ? ACCESS_READ_1 : ACCESS_WRITE_1);
 
          end
 
@@ -193,50 +198,109 @@ module mem_system(/*AUTOARG*/
             next_state = IDLE;
          end
 
-         ACCESS_READ: begin
+         //access read write to mem 4 words loop
+
+         ACCESS_READ_1: begin
             cache_rd = 1;
-            cache_addr = Addr;
+            cache_addr = {Addr[15:3], 2'b00, Addr[0]};
             mem_write = 1;//writing dirty to mem
-            mem_addr = {actual_tag, cache_addr[10:0]}; //takes in address from cc input
+            mem_addr = {actual_tag, cache_addr[10:3], 2'b00, cache_addr[0]}; //takes in address from cc input
             mem_data_in = cache_data_out;
+            next_state = ACCESS_READ_2;
+         end
+
+          ACCESS_READ_2: begin
+            cache_rd = 1;
+            cache_addr = {Addr[15:3], 2'b01, Addr[0]};
+            mem_write = 1;//writing dirty to mem
+            mem_addr = {actual_tag, cache_addr[10:3], 2'b01, cache_addr[0]}; //takes in address from cc input
+            mem_data_in = cache_data_out;
+            next_state = mem_stall ? ACCESS_READ_2: ACCESS_READ_3;
+         end
+
+          ACCESS_READ_3: begin
+            cache_rd = 1;
+            cache_addr = {Addr[15:3], 2'b10, Addr[0]};
+            mem_write = 1;//writing dirty to mem
+            mem_addr = {actual_tag, cache_addr[10:3], 2'b10, cache_addr[0]}; //takes in address from cc input
+            mem_data_in = cache_data_out;
+            next_state = mem_stall ? ACCESS_READ_3 : ACCESS_READ_4;
+         end
+
+          ACCESS_READ_4: begin
+            cache_rd = 1;
+            cache_addr = {Addr[15:3], 2'b11, Addr[0]};
+            mem_write = 1;//writing dirty to mem
+            mem_addr = {actual_tag, cache_addr[10:3], 2'b11, cache_addr[0]}; //takes in address from cc input
+            mem_data_in = cache_data_out;
+            next_state = mem_stall ? ACCESS_READ_4 : ACCESS_WRITE_1;
+         end
+
+         //access write, write 4 words to cache loop, SHOULD ADD STALL IN EVERY ONE
+
+         ACCESS_WRITE_1: begin
+            mem_read = 1;
+            mem_addr = {Addr[15:3], 2'b00, Addr[0]};
+            next_state = ACCESS_WRITE_2;
+         end
+
+         ACCESS_WRITE_2: begin
+            mem_read = 1;
+            mem_addr = {Addr[15:3], 2'b01, Addr[0]};
+            next_state = ACCESS_WRITE_3;
+         end
+
+         ACCESS_WRITE_3: begin
+            mem_read = 1;
+            mem_addr = {Addr[15:3], 2'b10, Addr[0]};
+
+            cache_wr = 1;
+            cache_data_in = mem_data_out;
+            cache_addr = {Addr[15:3], 2'b00, Addr[0]};
+            valid_to_cache = 1'b1;
+            next_state = ACCESS_WRITE_4;
+         end
+
+         ACCESS_WRITE_4: begin
+            mem_read = 1;
+            mem_addr = {Addr[15:3], 2'b11, Addr[0]};
+
+            cache_wr = 1;
+            cache_data_in = mem_data_out;
+            cache_addr = {Addr[15:3], 2'b01, Addr[0]};
+            valid_to_cache = 1'b1;
             next_state = WRITE_WAIT1;
-            // i might not have to stall this many times
          end
 
          WRITE_WAIT1: begin 
+            cache_wr = 1;
+            cache_data_in = mem_data_out;
+            cache_addr = {Addr[15:3], 2'b10, Addr[0]};
+            valid_to_cache = 1'b1;
             next_state = WRITE_WAIT2;
          end
 
          WRITE_WAIT2: begin 
-            next_state = WRITE_WAIT3;
-         end
-
-         WRITE_WAIT3: begin 
-            next_state = WRITE_WAIT4;
-         end
-
-          WRITE_WAIT4: begin 
-            next_state = ACCESS_WRITE;
-         end
-
-         ACCESS_WRITE: begin
-            mem_read = 1;
-            mem_addr = Addr;
-            next_state = READ_WAIT1;
-         end
-
-         READ_WAIT1: begin 
-            next_state = READ_WAIT2;
-         end
-
-         READ_WAIT2: begin 
             cache_wr = 1;
             cache_data_in = mem_data_out;
+            cache_addr = {Addr[15:3], 2'b11, Addr[0]};
+            valid_to_cache = 1'b1;
+            next_state = IDLE;
+            Done = Rd; //if we r doing load we are done, if it was a write, need to write back
+         end
+
+         STORE_MISS_WRITE: begin 
+            cache_wr = 1;
+            cache_comp = 1;
+            cache_data_in = DataIn;
             cache_addr = Addr;
             valid_to_cache = 1'b1;
-            // next_state = mem_stall ? ACCESS_WRITE : IDLE;
             next_state = IDLE;
             Done = 1;
+         end
+
+         default: begin 
+            next_state = IDLE;
          end
 
       endcase

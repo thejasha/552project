@@ -23,7 +23,13 @@ module put_together_tb();
     rst = 1'b1;
     clk = 1'b0;
 
-    @(negedge clk);
+    //test that it stay in idle
+    Rd = 0;
+    Wr = 0;
+    Addr = 16'h0000;
+    DataIn = 16'h0000;
+    repeat(2) @(negedge clk);
+
     createdump = 1'b0;
     rst = 1'b0;
     Rd = 0;
@@ -31,17 +37,19 @@ module put_together_tb();
     Addr = 16'h015c;
     DataIn = 16'h0018;
 
-    
-    
-    
-    
-    @(posedge Done); // Run for 25 clock cycles (or adjust as needed)
+    @(posedge Done); //test if we hit a load
+    Rd = 1;
+    Wr = 0;
+    Addr = 16'h015c;
+    DataIn = 16'h0018;
+
+    @(posedge Done); //test writing
     Rd = 0;
     Wr = 1;
     Addr = 16'h015c;
     DataIn = 16'h0018;
 
-    @(posedge Done);
+    @(posedge Done);//test if writing was correct
 
     Rd = 1;
     Wr = 0;
