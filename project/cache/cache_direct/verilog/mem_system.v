@@ -285,8 +285,8 @@ module mem_system(/*AUTOARG*/
             cache_data_in = mem_data_out;
             cache_addr = {Addr[15:3], 2'b11, Addr[0]};
             valid_to_cache = 1'b1;
-            next_state = IDLE;
             Done = Rd; //if we r doing load we are done, if it was a write, need to write back
+            next_state = Wr ? STORE_MISS_WRITE : IDLE;
          end
 
          STORE_MISS_WRITE: begin 
