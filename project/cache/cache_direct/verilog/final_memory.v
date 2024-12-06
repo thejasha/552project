@@ -117,10 +117,10 @@ module final_memory (
               mem[i] = 0;
            end
           case (bank_id)
-            0: $readmemh("C:/Users/jaman/ECE552/552project/project/cache/cache_direct/verilog/loadfile_0.img", mem);
-            1: $readmemh("C:/Users/jaman/ECE552/552project/project/cache/cache_direct/verilog/loadfile_1.img", mem);
-            2: $readmemh("C:/Users/jaman/ECE552/552project/project/cache/cache_direct/verilog/loadfile_2.img", mem);
-            3: $readmemh("C:/Users/jaman/ECE552/552project/project/cache/cache_direct/verilog/loadfile_3.img", mem);
+            0: $readmemh("loadfile_0.img", mem);
+            1: $readmemh("loadfile_1.img", mem);
+            2: $readmemh("loadfile_2.img", mem);
+            3: $readmemh("loadfile_3.img", mem);
           endcase
           loaded = 1;
         end
