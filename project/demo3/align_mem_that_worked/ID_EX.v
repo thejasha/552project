@@ -97,31 +97,31 @@ input wire clk, rst;
     output wire [2:0] write_reg_out;
 
 /*FLOPS*/
-dff BSrc [1:0](.q(BSrc_out), .d(mem_stall ? BSrc_out : BSrc_in), .clk(clk), .rst(rst));
-dff InvB(.q(InvB_out), .d(mem_stall ? InvB_out : InvB_in), .clk(clk), .rst(rst));
-dff InvA(.q(InvA_out), .d(mem_stall ? InvA_out : InvA_in), .clk(clk), .rst(rst));
-dff ALUCtrl [2:0](.q(ALUCtrl_out), .d(mem_stall ? ALUCtrl_out : ALUCtrl_in), .clk(clk), .rst(rst));
-dff BranchCtrl [1:0](.q(BranchCtrl_out), .d(mem_stall ? BranchCtrl_out : BranchCtrl_in), .clk(clk), .rst(rst));
-dff branch(.q(branch_out), .d(mem_stall ? branch_out : branch_in), .clk(clk), .rst(rst));
-dff SLBI(.q(SLBI_out), .d(mem_stall ? SLBI_out : SLBI_in), .clk(clk), .rst(rst));
-dff SetCtrl3 [2:0](.q(SetCtrl3_out), .d(mem_stall ? SetCtrl3_out : SetCtrl3_in), .clk(clk), .rst(rst));
-dff BTR(.q(BTR_out), .d(mem_stall ? BTR_out : BTR_in), .clk(clk), .rst(rst));
-dff ReadData1 [15:0](.q(ReadData1_out), .d(mem_stall ? ReadData1_out : ReadData1_in), .clk(clk), .rst(rst));
+dff BSrc [1:0] (.q(BSrc_out), .d(BSrc_in), .clk(clk), .rst(rst));
+dff InvB(.q(InvB_out), .d(InvB_in), .clk(clk), .rst(rst));
+dff InvA(.q(InvA_out), .d(InvA_in), .clk(clk), .rst(rst));
+dff ALUCtrl [2:0] (.q(ALUCtrl_out), .d(ALUCtrl_in), .clk(clk), .rst(rst));
+dff BranchCtrl [1:0] (.q(BranchCtrl_out), .d(BranchCtrl_in), .clk(clk), .rst(rst));
+dff branch(.q(branch_out), .d(branch_in), .clk(clk), .rst(rst));
+dff SLBI(.q(SLBI_out), .d(SLBI_in), .clk(clk), .rst(rst));
+dff SetCtrl3 [2:0] (.q(SetCtrl3_out), .d(SetCtrl3_in), .clk(clk), .rst(rst));
+dff BTR(.q(BTR_out), .d(BTR_in), .clk(clk), .rst(rst));
+dff ReadData1 [15:0] (.q(ReadData1_out), .d(ReadData1_in), .clk(clk), .rst(rst));
 
-dff ReadData2 [15:0](.q(ReadData2_out), .d(mem_stall ? ReadData2_out : ReadData2_in), .clk(clk), .rst(rst));
-dff fourExtend [15:0](.q(fourExtend_out), .d(mem_stall ? fourExtend_out : fourExtend_in), .clk(clk), .rst(rst));
-dff sevenExtend [15:0](.q(sevenExtend_out), .d(mem_stall ? sevenExtend_out : sevenExtend_in), .clk(clk), .rst(rst));
-dff shifted [15:0](.q(shifted_out), .d(mem_stall ? shifted_out : shifted_in), .clk(clk), .rst(rst));
-dff MemWrt(.q(MemWrt_out), .d(mem_stall ? MemWrt_out : MemWrt_in), .clk(clk), .rst(rst));
-dff ALUJMP(.q(ALUJMP_out), .d(mem_stall ? ALUJMP_out : ALUJMP_in), .clk(clk), .rst(rst));
+dff ReadData2 [15:0] (.q(ReadData2_out), .d(ReadData2_in), .clk(clk), .rst(rst));
+dff fourExtend [15:0] (.q(fourExtend_out), .d(fourExtend_in), .clk(clk), .rst(rst));
+dff sevenExtend [15:0] (.q(sevenExtend_out), .d(sevenExtend_in), .clk(clk), .rst(rst));
+dff shifted [15:0] (.q(shifted_out), .d(shifted_in), .clk(clk), .rst(rst));
+dff MemWrt(.q(MemWrt_out), .d(MemWrt_in), .clk(clk), .rst(rst));
+dff ALUJMP(.q(ALUJMP_out), .d(ALUJMP_in), .clk(clk), .rst(rst));
 
-dff PC_or_add(.q(PC_or_add_out), .d(mem_stall ? PC_or_add_out : PC_or_add_in), .clk(clk), .rst(rst));
-dff halt(.q(halt_out), .d(mem_stall ? halt_out : halt_in), .clk(clk), .rst(rst));
-dff word_align_jump [15:0](.q(word_align_jump_out), .d(mem_stall ? word_align_jump_out : word_align_jump_in), .clk(clk), .rst(rst));
-dff RegWrt(.q(RegWrt_out), .d(mem_stall ? RegWrt_out : RegWrt_in), .clk(clk), .rst(rst));
-dff SendNOP(.q(SendNOP_Out), .d(mem_stall ? SendNOP_Out : SendNOP_In), .clk(clk), .rst(rst));
-dff RegSrc [1:0](.q(RegSrc_out), .d(mem_stall ? RegSrc_out : RegSrc_in), .clk(clk), .rst(rst));
-dff pc2 [15:0](.q(pc2_out), .d(mem_stall ? pc2_out : pc2_in), .clk(clk), .rst(rst));
-dff write_reg [2:0](.q(write_reg_out), .d(mem_stall ? write_reg_out : write_reg_in), .clk(clk), .rst(rst));
+dff PC_or_add(.q(PC_or_add_out), .d(PC_or_add_in), .clk(clk), .rst(rst));
+dff halt(.q(halt_out), .d(halt_in), .clk(clk), .rst(rst));
+dff word_align_jump [15:0] (.q(word_align_jump_out), .d(word_align_jump_in), .clk(clk), .rst(rst));
+dff RegWrt(.q(RegWrt_out), .d(RegWrt_in), .clk(clk), .rst(rst));
+dff SendNOP(.q(SendNOP_Out), .d(SendNOP_In), .clk(clk), .rst(rst));
+dff RegSrc [1:0](.q(RegSrc_out), .d(RegSrc_in), .clk(clk), .rst(rst));
+dff pc2 [15:0] (.q(pc2_out), .d(pc2_in), .clk(clk), .rst(rst));
+dff write_reg [2:0](.q(write_reg_out), .d(write_reg_in), .clk(clk), .rst(rst));
 
 endmodule

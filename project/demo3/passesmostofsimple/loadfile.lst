@@ -1,0 +1,20 @@
+          // Original test: ./bolanows/hw4/problem6/jalr_2.asm
+          // Author: bolanows
+          // Test source code follows
+          
+          
+          // Makes sure values can be added to register we jump to
+0000 3004 JAL 4 // Jumps to TargetA, PC = 6
+0002 0800 Nop
+0004 0800 Nop
+0006 0800 Nop // PC = 6 TargetA
+0008 3f10 JALR r7, 16 // Jumps to TargetB, PC = 18
+000a 0800 Nop
+000c 0800 Nop
+000e 0800 Nop
+0010 0800 Nop
+0012 0800 Nop // TargetB
+0014 0000 Halt
+0016 0800 Nop
+0018 0800 Nop
+001a 0000 Halt
