@@ -1,0 +1,14 @@
+          //this will be to mainly test branch
+0000 2002 j 2
+0002 0000 halt  //should skip
+0004 4222 addi r1, r2, 2
+0006 3000 jal 0
+0008 0000 halt
+000a 41e0 addi r7, r1, 0
+000c 3c02 jalr r4, 2 //should go to first halt
+000e 4280 addi r4, r2, 0
+0010 4280 addi r4, r2, 0
+0012 4280 addi r4, r2, 0
+0014 4280 addi r4, r2, 0
+0016 4280 addi r4, r2, 0
+0018 0000 halt

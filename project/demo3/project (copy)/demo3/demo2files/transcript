@@ -1,0 +1,52 @@
+# ** Warning: License feature 'msimviewer' will expire in 5 days.
+# dump.wlf opened as dataset "dataset"
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/cycle
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/EXFWD1
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/sendNOP
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/inst
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/line1_fwdable
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/line2_fwdable
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/RegS
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/RegT
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/execute
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/memory
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/WRWB
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/WRMEM
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/EXFWD2
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/MEMFWD1
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/IDUUT/MEMFWD2
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU3/ReadData1
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU3/ReadData2
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/latch4/Binput_in
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/latch4/Binput_out
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/latch4/alu_data_out
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU2/data_write
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU2/RegWrt
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU2/RegDst
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU2/RegSrc
+add wave -position insertpoint  \
+dataset:/proc_hier_pbench/DUT/p0/iDUU2/write_reg_from_wb
