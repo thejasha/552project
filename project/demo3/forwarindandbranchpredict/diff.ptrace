@@ -1,0 +1,10 @@
+INST:    1100 0010 1111 1101 lbi r2,-3
+ARCH:    REG: 2 VALUE: 0xfffd  
+VERILOG: REG: 2 VALUE: 0xfffd
+INST:    0111 0010 0000 0100 bltz r2,4
+INST:    0111 0010 1111 1010 bltz r2,-6
+INST:    1100 0010 1111 1111 lbi r2,-1
+ARCH:    REG: 2 VALUE: 0xffff  
+VERILOG: REG: 2 VALUE: 0xffff
+INST:    0000 0000 0000 0000 halt
+SUCCESS: No differences
